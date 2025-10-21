@@ -321,7 +321,7 @@
                         Entrar
                     </button>
                 </div>
-                <p class="text-sm text-gray-400 mt-2">💡 Contraseña por defecto: <code>admin123</code></p>
+                <p class="text-sm text-gray-400 mt-2"><code></code></p>
             </div>
 
             <!-- Lista de Reservas -->
@@ -365,7 +365,7 @@
         const DRAW_DATE = new Date('2025-12-06T20:00:00');
         const TICKET_PRICE = 20000;
         const TOTAL_TICKETS = 500;
-        const ADMIN_PASSWORD = 'admin123'; // ⚠️ CAMBIAR ESTA CONTRASEÑA
+        const ADMIN_PASSWORD = '210621#'; // ⚠️ CAMBIAR ESTA CONTRASEÑA
 
         // Estado de las boletas
         let tickets = [];
@@ -483,11 +483,25 @@
             
             // Crear mensaje de WhatsApp
             const message = `Hola Emil! Reservé la Boleta #${selectedTicket.ticketNumber} de la rifa del portátil gamer.\n\n📌 Números: ${selectedTicket.numbers[0]} y ${selectedTicket.numbers[1]}\n\nDatos:\nNombre: ${name}\nCorreo: ${email}\nCelular: ${phone}\nMétodo de pago: ${payment}\n\nEnvío mi comprobante de pago de $${TICKET_PRICE.toLocaleString('es-CO')} COP.`;
-            
-            // Abrir WhatsApp después de 2 segundos
-            setTimeout(() => {
-                window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
-            }, 2000);
+
+            const encoded = encodeURIComponent(message);
+
+            // Detectar móvil
+            const isMobile = /Android|iPhone|iPad|iPod|Windows Phone|Opera Mini|IEMobile/i.test(navigator.userAgent);
+
+            // Intentar abrir la app de WhatsApp en móvil; si falla, abrir wa.me (web) como fallback.
+            // En escritorio abrir wa.me en una nueva pestaña.
+            if (isMobile) {
+                // Intento directo al esquema whatsapp:// para abrir la app nativa
+                window.location.href = `whatsapp://send?phone=${WHATSAPP_NUMBER}&text=${encoded}`;
+
+                // Fallback a wa.me después de un pequeño retraso por si no se abre la app
+                setTimeout(() => {
+                    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`, '_blank');
+                }, 700);
+            } else {
+                window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`, '_blank');
+            }
             
             // Cerrar modales después de 5 segundos
             setTimeout(() => {
