@@ -13,7 +13,7 @@
         .animate-bounce { animation: bounce 1s infinite; }
         
         body {
-            background: linear-gradient(135deg, #4c1d95 0%, #1e3a8a 50%, #312e81 100%);
+            background: linear-gradient(135deg, #2a0168 0%, #182f6e 50%, #222058 100%);
             min-height: 100vh;
         }
         
@@ -32,10 +32,10 @@
         <div class="max-w-7xl mx-auto px-4 py-6">
             <div class="text-center">
                 <h1 class="text-4xl font-bold mb-2 flex items-center justify-center gap-3">
-                    🎁 Rifa Universitaria
+                    Sorteo con el fin de recoger fondos Universitarios
                 </h1>
                 <p class="text-xl text-yellow-300 font-semibold mb-4">
-                    Premio: ASUS TUF Gaming Ryzen 7 / RTX 3050
+                    Premio: ASUS TUF Gaming Ryzen 7 / RTX 3050 / 16GB RAM DDR5 / 500GB M.2
                 </p>
                 <p class="text-2xl font-bold text-green-400">
                     o $3.000.000 COP en efectivo (a elección del ganador)
@@ -53,21 +53,21 @@
                     </div>
                     <div class="bg-white/10 rounded-lg p-4">
                         <p class="text-sm text-gray-300">Sorteo</p>
-                        <p class="text-lg font-bold">6 de diciembre 2024</p>
+                        <p class="text-lg font-bold">6 de diciembre 2025</p>
                         <p class="text-xs text-gray-300">Lotería de Santander</p>
                     </div>
                 </div>
 
                 <div class="mt-6 bg-red-600/20 border-2 border-red-400 rounded-lg p-4 max-w-md mx-auto">
                     <div class="flex items-center justify-center gap-2 mb-2">
-                        ⏰ <p class="text-sm font-semibold">Tiempo restante</p>
+                         <p class="text-sm font-semibold">Tiempo restante para el sorteo</p>
                     </div>
                     <p id="countdown" class="text-3xl font-mono font-bold">Calculando...</p>
                 </div>
 
                 <div class="mt-4 bg-blue-500/20 border border-blue-400 rounded-lg p-3 max-w-2xl mx-auto">
                     <p class="text-sm">
-                        💡 <strong>¡Doble oportunidad!</strong> Cada boleta incluye 2 números (000-499 y 500-999)
+                         <strong>¡Doble oportunidad!</strong> Cada boleta incluye 2 números (000-499 y 500-999)
                     </p>
                 </div>
             </div>
@@ -190,7 +190,7 @@
                     <label class="flex items-start gap-3 cursor-pointer">
                         <input type="checkbox" id="inputTerms" class="mt-1 w-5 h-5">
                         <span class="text-sm">
-                            Acepto los términos y condiciones. Entiendo que tengo 24 horas para enviar el comprobante de pago y que el ganador puede elegir entre el portátil o $3.000.000 COP en efectivo.
+                            Acepto los términos y condiciones. Entiendo que tengo 2 horas para enviar el comprobante de pago y que el ganador puede elegir entre el portátil o $3.000.000 COP en efectivo.
                         </span>
                     </label>
                 </div>
@@ -217,10 +217,10 @@
                     <h4 class="font-bold text-lg mb-2">1. Del Premio</h4>
                     <p>El ganador podrá elegir entre:</p>
                     <ul class="list-disc ml-6 mt-2">
-                        <li>Portátil ASUS TUF Gaming Ryzen 7 / RTX 3050</li>
+                        <li>Portátil ASUS TUF Gaming Ryzen 7 / RTX 3050 / 16GB RAM DDR5 / 500GB M.2</li>
                         <li>$3.000.000 COP en efectivo</li>
                     </ul>
-                    <p class="mt-2">La elección debe realizarse en un plazo máximo de 48 horas después del sorteo.</p>
+                    <p class="mt-2">La elección debe realizarse en un plazo máximo de 24 horas después del sorteo.</p>
                 </section>
 
                 <section>
@@ -236,12 +236,12 @@
 
                 <section>
                     <h4 class="font-bold text-lg mb-2">3. De la Reserva</h4>
-                    <p>Al reservar una boleta, el comprador tiene 24 horas para enviar el comprobante de pago al WhatsApp indicado. Si no se recibe el comprobante en ese plazo, la reserva será liberada automáticamente.</p>
+                    <p>Al reservar una boleta, el comprador tiene 2 horas para enviar el comprobante de pago al WhatsApp indicado. Si no se recibe el comprobante en ese plazo, la reserva será liberada automáticamente.</p>
                 </section>
 
                 <section>
                     <h4 class="font-bold text-lg mb-2">4. Del Sorteo</h4>
-                    <p>El sorteo se realizará el 6 de diciembre de 2024, siguiendo los resultados de la Lotería de Santander. El número ganador corresponderá a las últimas 3 cifras del premio mayor.</p>
+                    <p>El sorteo se realizará el 6 de diciembre de 2025, siguiendo los resultados de la Lotería de Santander. El número ganador corresponderá a las últimas 3 cifras del premio mayor.</p>
                 </section>
 
                 <section>
@@ -284,9 +284,65 @@
         </div>
     </div>
 
+    <!-- Botón Admin -->
+    <button onclick="toggleAdmin()" class="fixed bottom-4 right-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full shadow-lg font-semibold">
+        🔑 Admin
+    </button>
+
+    <!-- Panel Admin -->
+    <div id="adminPanel" class="hidden fixed inset-0 bg-black/90 z-50 overflow-y-auto">
+        <div class="max-w-6xl mx-auto p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-white">🔑 Panel de Administración</h2>
+                <button onclick="toggleAdmin()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg">
+                    Cerrar
+                </button>
+            </div>
+
+            <!-- Contraseña Admin -->
+            <div id="adminLogin" class="bg-white/10 backdrop-blur-md rounded-lg p-6 mb-6">
+                <h3 class="text-xl font-bold mb-4">Ingresa la contraseña de administrador</h3>
+                <div class="flex gap-3">
+                    <input type="password" id="adminPassword" placeholder="Contraseña" class="flex-1 px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
+                    <button onclick="loginAdmin()" class="bg-green-600 hover:bg-green-500 px-6 py-2 rounded-lg font-semibold">
+                        Entrar
+                    </button>
+                </div>
+                <p class="text-sm text-gray-400 mt-2">💡 Contraseña por defecto: <code>admin123</code></p>
+            </div>
+
+            <!-- Lista de Reservas -->
+            <div id="adminContent" class="hidden">
+                <div class="bg-white/10 backdrop-blur-md rounded-lg p-6 mb-6">
+                    <h3 class="text-xl font-bold mb-4">📋 Boletas Reservadas (Pendientes de Pago)</h3>
+                    <div id="reservedList" class="space-y-3">
+                        <!-- Se llenará con JavaScript -->
+                    </div>
+                </div>
+
+                <div class="bg-white/10 backdrop-blur-md rounded-lg p-6 mb-6">
+                    <h3 class="text-xl font-bold mb-4 text-green-400">✅ Boletas Vendidas (Pagadas)</h3>
+                    <div id="soldList" class="space-y-3">
+                        <!-- Se llenará con JavaScript -->
+                    </div>
+                </div>
+
+                <div class="bg-white/10 backdrop-blur-md rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-4">🗑️ Liberar Boleta Manualmente</h3>
+                    <div class="flex gap-3">
+                        <input type="number" id="ticketToFree" placeholder="Número de boleta" min="1" max="500" class="flex-1 px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
+                        <button onclick="freeTicket()" class="bg-red-600 hover:bg-red-500 px-6 py-2 rounded-lg font-semibold">
+                            Liberar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <div class="max-w-7xl mx-auto px-4 py-6 text-center text-sm text-gray-400">
-        <p>Rifa Universitaria 2024 • Todas las transacciones deben ser validadas</p>
+        <p>Rifa Universitaria 2025 • Todas las transacciones deben ser validadas</p>
         <p class="mt-2">WhatsApp: <span id="footerWhatsapp"></span></p>
     </div>
 
@@ -296,10 +352,12 @@
         const DRAW_DATE = new Date('2025-12-06T20:00:00');
         const TICKET_PRICE = 20000;
         const TOTAL_TICKETS = 500;
+        const ADMIN_PASSWORD = 'admin123'; // ⚠️ CAMBIAR ESTA CONTRASEÑA
 
         // Estado de las boletas
         let tickets = [];
         let selectedTicket = null;
+        let isAdminLoggedIn = false;
 
         // Inicializar boletas
         function initTickets() {
@@ -330,7 +388,7 @@
                 const button = document.createElement('button');
                 button.className = `ticket-card rounded-lg p-4 font-bold transition-all text-left ${
                     ticket.status === 'available' 
-                        ? 'bg-green-500 hover:bg-green-400 cursor-pointer shadow-lg' 
+                        ? 'bg-green-500 hover:bg-blue-400 cursor-pointer shadow-lg' 
                         : ticket.status === 'reserved'
                         ? 'bg-yellow-600 cursor-not-allowed opacity-60'
                         : 'bg-red-600 cursor-not-allowed opacity-60'
@@ -340,9 +398,9 @@
                 button.onclick = () => openForm(ticket);
                 
                 button.innerHTML = `
-                    <div class="text-lg mb-1">Boleta #${ticket.ticketNumber}</div>
+                    <div class="text-lg mb-1 style: color = "black" >Boleta #${ticket.ticketNumber}</div>
                     <div class="text-sm font-normal opacity-90">
-                        📌 ${ticket.numbers[0]} y ${ticket.numbers[1]}
+                         ${ticket.numbers[0]} y ${ticket.numbers[1]}
                     </div>
                 `;
                 
@@ -462,7 +520,7 @@
                 if (ticket.status === 'reserved' && ticket.reservedAt) {
                     const reservedTime = new Date(ticket.reservedAt);
                     const hoursPassed = (now - reservedTime) / (1000 * 60 * 60);
-                    if (hoursPassed >= 24) {
+                    if (hoursPassed >= 2) {
                         ticket.status = 'available';
                         ticket.buyer = null;
                         ticket.reservedAt = null;
@@ -476,6 +534,143 @@
         // Mostrar número de WhatsApp en footer
         document.getElementById('footerWhatsapp').textContent = `+57 ${WHATSAPP_NUMBER.slice(2)}`;
         document.getElementById('whatsappDisplay').textContent = `+57 ${WHATSAPP_NUMBER.slice(2)}`;
+
+        // === FUNCIONES DE ADMINISTRADOR ===
+        
+        // Alternar panel admin
+        function toggleAdmin() {
+            const panel = document.getElementById('adminPanel');
+            panel.classList.toggle('hidden');
+            if (!panel.classList.contains('hidden') && isAdminLoggedIn) {
+                loadAdminData();
+            }
+        }
+
+        // Login admin
+        function loginAdmin() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === ADMIN_PASSWORD) {
+                isAdminLoggedIn = true;
+                document.getElementById('adminLogin').classList.add('hidden');
+                document.getElementById('adminContent').classList.remove('hidden');
+                loadAdminData();
+            } else {
+                alert('❌ Contraseña incorrecta');
+            }
+        }
+
+        // Cargar datos en panel admin
+        function loadAdminData() {
+            // Boletas reservadas
+            const reservedTickets = tickets.filter(t => t.status === 'reserved');
+            const reservedList = document.getElementById('reservedList');
+            
+            if (reservedTickets.length === 0) {
+                reservedList.innerHTML = '<p class="text-gray-400">No hay boletas reservadas pendientes</p>';
+            } else {
+                reservedList.innerHTML = reservedTickets.map(ticket => {
+                    const reservedTime = new Date(ticket.reservedAt);
+                    const timeLeft = 24 - Math.floor((new Date() - reservedTime) / (1000 * 60 * 60));
+                    
+                    return `
+                        <div class="bg-yellow-600/30 border border-yellow-400 rounded-lg p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <p class="font-bold text-lg">Boleta #${ticket.ticketNumber}</p>
+                                    <p class="text-sm">📌 Números: ${ticket.numbers[0]} y ${ticket.numbers[1]}</p>
+                                </div>
+                                <span class="bg-yellow-500 px-2 py-1 rounded text-xs font-bold">
+                                    ⏰ ${timeLeft}h restantes
+                                </span>
+                            </div>
+                            <div class="text-sm space-y-1 mb-3">
+                                <p>👤 <strong>Nombre:</strong> ${ticket.buyer.name}</p>
+                                <p>📧 <strong>Email:</strong> ${ticket.buyer.email}</p>
+                                <p>📱 <strong>Celular:</strong> ${ticket.buyer.phone}</p>
+                                <p>💳 <strong>Pago:</strong> ${ticket.buyer.payment}</p>
+                                <p>🕐 <strong>Reservado:</strong> ${reservedTime.toLocaleString('es-CO')}</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="markAsSold(${ticket.ticketNumber})" class="flex-1 bg-green-600 hover:bg-green-500 py-2 rounded font-semibold">
+                                    ✅ Marcar como PAGADA
+                                </button>
+                                <button onclick="freeTicketNumber(${ticket.ticketNumber})" class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded font-semibold">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Boletas vendidas
+            const soldTickets = tickets.filter(t => t.status === 'sold');
+            const soldList = document.getElementById('soldList');
+            
+            if (soldTickets.length === 0) {
+                soldList.innerHTML = '<p class="text-gray-400">No hay boletas vendidas aún</p>';
+            } else {
+                soldList.innerHTML = soldTickets.map(ticket => `
+                    <div class="bg-green-600/30 border border-green-400 rounded-lg p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-bold text-lg">Boleta #${ticket.ticketNumber}</p>
+                                <p class="text-sm">📌 Números: ${ticket.numbers[0]} y ${ticket.numbers[1]}</p>
+                                <div class="text-sm mt-2 space-y-1">
+                                    <p>👤 ${ticket.buyer.name}</p>
+                                    <p>📧 ${ticket.buyer.email}</p>
+                                    <p>📱 ${ticket.buyer.phone}</p>
+                                </div>
+                            </div>
+                            <span class="bg-green-500 px-3 py-1 rounded text-xs font-bold">
+                                ✅ PAGADA
+                            </span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Marcar boleta como vendida (pagada)
+        function markAsSold(ticketNumber) {
+            if (confirm(`¿Confirmas que recibiste el pago de la Boleta #${ticketNumber}?`)) {
+                const ticketIndex = tickets.findIndex(t => t.ticketNumber === ticketNumber);
+                if (ticketIndex !== -1) {
+                    tickets[ticketIndex].status = 'sold';
+                    renderTickets();
+                    updateStats();
+                    loadAdminData();
+                    alert(`✅ Boleta #${ticketNumber} marcada como VENDIDA`);
+                }
+            }
+        }
+
+        // Liberar boleta (cancelar reserva)
+        function freeTicketNumber(ticketNumber) {
+            if (confirm(`¿Liberar la Boleta #${ticketNumber}? Quedará disponible nuevamente.`)) {
+                const ticketIndex = tickets.findIndex(t => t.ticketNumber === ticketNumber);
+                if (ticketIndex !== -1) {
+                    tickets[ticketIndex].status = 'available';
+                    tickets[ticketIndex].buyer = null;
+                    tickets[ticketIndex].reservedAt = null;
+                    renderTickets();
+                    updateStats();
+                    loadAdminData();
+                    alert(`🗑️ Boleta #${ticketNumber} liberada`);
+                }
+            }
+        }
+
+        // Liberar boleta desde input manual
+        function freeTicket() {
+            const ticketNum = parseInt(document.getElementById('ticketToFree').value);
+            if (ticketNum >= 1 && ticketNum <= 500) {
+                freeTicketNumber(ticketNum);
+                document.getElementById('ticketToFree').value = '';
+            } else {
+                alert('❌ Número de boleta inválido (debe ser entre 1 y 500)');
+            }
+        }
 
         // Inicializar
         initTickets();
