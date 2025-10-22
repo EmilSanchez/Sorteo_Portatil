@@ -45,7 +45,8 @@
                 <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
                     <div class="bg-white/10 rounded-lg p-4">
                         <p class="text-sm text-gray-300">Valor boleta</p>
-                        <p class="text-2xl font-bold">$20.000</p>
+                        <p class="text-2xl font-bold">$25.000</p>
+                        <p class="text-xs text-yellow-300 mt-1">Aparta con $5.000</p>
                     </div>
                     <div class="bg-white/10 rounded-lg p-4">
                         <p class="text-sm text-gray-300">Total boletas</p>
@@ -97,7 +98,7 @@
             <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
                 🎫 Selecciona tu boleta
             </h2>
-            <div id="ticketsGrid" class="grid grid-cols-1 sm:grid-cols-6 lg:grid-cols-3 xl:grid-cols-6 gap-3 style=color: "black;">
+            <div id="ticketsGrid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2">
                 <!-- Las boletas se generarán con JavaScript -->
             </div>
         </div>
@@ -134,6 +135,11 @@
                 </div>
 
                 <div>
+                    <label class="block text-sm font-semibold mb-2">Dirección completa</label>
+                    <input type="text" id="inputAddress" placeholder="Calle, Carrera, Barrio, Ciudad" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
+                </div>
+
+                <div>
                     <label class="block text-sm font-semibold mb-2">Método de pago</label>
                     <select id="inputPayment" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
                         <option value="" style="color: #000;">Seleccionar...</option>
@@ -143,55 +149,23 @@
                         <option value="Otro" style="color: #000;">Otro</option>
                     </select>
 
-                    <!-- Información dinámica según método de pago -->
                     <div id="paymentInfo" class="mt-3 text-sm bg-white/10 rounded-lg p-3 hidden">
                         <div class="font-semibold mb-1">Instrucciones de pago</div>
                         <div id="paymentDetails" class="font-mono"></div>
                     </div>
                 </div>
 
-                <script>
-                    // Mapea cada opción a las instrucciones / número de cuenta que quieres mostrar
-                    const paymentAccounts = {
-                        Nequi: 'Nequi: 3167862046 (A nombre de Maria Martinez). Enviar comprobante por WhatsApp.',
-                        Llaves: 'Llaves: 3167862046 (A nombre de Maria Martinez). Indica que es consignación por la rifa.',
-                        Efectivo: 'Efectivo: Pagar en punto de encuentro. Coordinar lugar y hora por WhatsApp.',
-                        Otro: 'Otro: Por favor describe el método en el mensaje de WhatsApp y sube el comprobante.'
-                    };
-
-                    const paymentSelect = document.getElementById('inputPayment');
-                    const paymentInfo = document.getElementById('paymentInfo');
-                    const paymentDetails = document.getElementById('paymentDetails');
-
-                    function updatePaymentInfo() {
-                        const val = paymentSelect.value;
-                        if (!val) {
-                            paymentInfo.classList.add('hidden');
-                            paymentDetails.textContent = '';
-                            return;
-                        }
-                        paymentDetails.textContent = paymentAccounts[val] || '';
-                        paymentInfo.classList.remove('hidden');
-                    }
-
-                    paymentSelect.addEventListener('change', updatePaymentInfo);
-
-                    // Si el modal se cierra y se limpia el select, ocultamos también el recuadro
-                    // (esto cubre el caso de closeForm que pone inputPayment.value = '')
-                    const observer = new MutationObserver(() => {
-                        if (paymentSelect.value === '') updatePaymentInfo();
-                    });
-                    observer.observe(paymentSelect, { attributes: true, attributeFilter: ['value'] });
-
-                    // Inicializa el estado si ya hay un valor seleccionado al abrir el modal
-                    updatePaymentInfo();
-                </script>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Monto a pagar (mínimo $5.000 para apartar)</label>
+                    <input type="number" id="inputAmount" min="5000" max="25000" value="5000" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
+                    <p class="text-xs text-gray-300 mt-1">Valor total: $25.000 - Puedes apartar con $5.000</p>
+                </div>
 
                 <div class="bg-yellow-400/20 border border-yellow-400 rounded-lg p-4">
                     <label class="flex items-start gap-3 cursor-pointer">
                         <input type="checkbox" id="inputTerms" class="mt-1 w-5 h-5">
                         <span class="text-sm">
-                            Acepto los términos y condiciones. Entiendo que tengo 24 horas para enviar el comprobante de pago y que el ganador puede elegir entre el portátil o $3.000.000 COP en efectivo.
+                            Acepto los términos y condiciones. Entiendo que tengo 24 horas para enviar el comprobante del abono inicial ($5.000 mínimo) y hasta el 4 de diciembre de 2025 para completar el pago total de $25.000.
                         </span>
                     </label>
                 </div>
@@ -225,39 +199,30 @@
                 </section>
 
                 <section>
-                    <h4 class="font-bold text-lg mb-2">2. De las Boletas</h4>
-                    <p>Cada boleta incluye 2 números automáticamente asignados:</p>
-                    <ul class="list-disc ml-6 mt-2">
-                        <li>Boleta #1 incluye números 000 y 500</li>
-                        <li>Boleta #2 incluye números 001 y 501</li>
-                        <li>Y así sucesivamente hasta la Boleta #500 con números 499 y 999</li>
-                    </ul>
-                    <p class="mt-2">Esto significa que con una sola boleta participas con dos números en el sorteo, duplicando tus oportunidades de ganar.</p>
+                    <h4 class="font-bold text-lg mb-2">2. Del Pago</h4>
+                    <p>El valor total de cada boleta es $25.000 COP. Puedes apartar tu boleta con un pago mínimo de $5.000 COP y completar el saldo antes del sorteo.</p>
                 </section>
 
                 <section>
-                    <h4 class="font-bold text-lg mb-2">3. De la Reserva</h4>
-                    <p>Al reservar una boleta, el comprador tiene 24 horas para enviar el comprobante de pago al WhatsApp indicado. Si no se recibe el comprobante en ese plazo, la reserva será liberada automáticamente.</p>
+                    <h4 class="font-bold text-lg mb-2">3. De las Boletas</h4>
+                    <p>Cada boleta incluye 2 números automáticamente asignados, duplicando tus oportunidades de ganar.</p>
+                </section>
+
+                <section>
+                    <h4 class="font-bold text-lg mb-2">3. De la Reserva y Pagos</h4>
+                    <p><strong>Abono inicial:</strong> Puedes apartar tu boleta con un pago mínimo de $5.000 COP. Tienes 24 horas para enviar el comprobante de este abono inicial, de lo contrario la reserva será liberada.</p>
+                    <p class="mt-2"><strong>Pago total:</strong> El valor completo de la boleta ($25.000 COP) debe estar pagado completamente antes del 4 de diciembre de 2025 a las 11:59 PM. Puedes hacer abonos parciales durante este período.</p>
+                    <p class="mt-2"><strong>Importante:</strong> Solo participan en el sorteo las boletas que estén pagadas en su totalidad antes de la fecha límite.</p>
                 </section>
 
                 <section>
                     <h4 class="font-bold text-lg mb-2">4. Del Sorteo</h4>
-                    <p>El sorteo se realizará el 6 de diciembre de 2025, siguiendo los resultados de la Lotería de Santander. El número ganador corresponderá a las últimas 3 cifras del premio mayor.</p>
+                    <p>El sorteo se realizará el 6 de diciembre de 2025, siguiendo los resultados de la Lotería de Santander.</p>
                 </section>
 
                 <section>
                     <h4 class="font-bold text-lg mb-2">5. De la Entrega</h4>
                     <p>El premio será entregado dentro de los 5 días hábiles siguientes al sorteo, previa validación del boleto ganador y presentación de documento de identidad.</p>
-                </section>
-
-                <section>
-                    <h4 class="font-bold text-lg mb-2">6. Responsabilidad</h4>
-                    <p>Los organizadores no se hacen responsables por información errónea proporcionada por el participante. Es responsabilidad del comprador conservar su comprobante de pago.</p>
-                </section>
-
-                <section>
-                    <h4 class="font-bold text-lg mb-2">7. Validez</h4>
-                    <p>Solo participan boletas debidamente pagadas y confirmadas por los organizadores antes de la fecha del sorteo.</p>
                 </section>
             </div>
 
@@ -275,30 +240,13 @@
             <div class="bg-white/20 rounded-lg p-3 mb-4">
                 <p class="font-bold">Boleta #<span id="successTicketNum"></span></p>
                 <p class="text-sm">Números: <span id="successNumbers"></span></p>
+                <p class="text-sm mt-2">Pagado: $<span id="successAmount"></span> de $25.000</p>
             </div>
             <p class="mb-4">
                 Envía tu comprobante al WhatsApp <strong id="whatsappDisplay"></strong> para validar tu participación.
             </p>
             <p class="text-sm bg-white/20 rounded-lg p-3">
-                Tienes 24 horas para enviar el comprobante; si no se recibe, la reserva será liberada.
-            </p>
-        </div>
-    </div>
-
-    <!-- Modal Éxito -->
-    <div id="successModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-        <div class="bg-green-600 rounded-xl p-8 max-w-md w-full text-center">
-        </div>    <div class="text-6xl mb-4 animate-bounce">✅</div>
-            <h3 class="text-2xl font-bold mb-4">Reserva Registrada</h3>
-            <div class="bg-white/20 rounded-lg p-3 mb-4">
-                <p class="font-bold">Boleta #<span id="successTicketNum"></span></p>
-                <p class="text-sm">Números: <span id="successNumbers"></span></p>
-            </div>
-            <p class="mb-4">
-                Envía tu comprobante al WhatsApp <strong id="whatsappDisplay"></strong> para validar tu participación.
-            </p>
-            <p class="text-sm bg-white/20 rounded-lg p-3">
-                Tienes 24 horas para enviar el comprobante; si no se recibe, la reserva será liberada.
+                Tienes 24 horas para enviar el comprobante del abono inicial. El pago completo debe estar antes del 4 de diciembre 2025.
             </p>
         </div>
     </div>
@@ -313,7 +261,6 @@
                 </button>
             </div>
 
-            <!-- Contraseña Admin -->
             <div id="adminLogin" class="bg-white/10 backdrop-blur-md rounded-lg p-6 mb-6">
                 <h3 class="text-xl font-bold mb-4">Ingresa la contraseña de administrador</h3>
                 <div class="flex gap-3">
@@ -322,23 +269,17 @@
                         Entrar
                     </button>
                 </div>
-                <p class="text-sm text-gray-400 mt-2"><code></code></p>
             </div>
 
-            <!-- Lista de Reservas -->
             <div id="adminContent" class="hidden">
                 <div class="bg-white/10 backdrop-blur-md rounded-lg p-6 mb-6">
-                    <h3 class="text-xl font-bold mb-4">📋 Boletas Reservadas (Pendientes de Pago)</h3>
-                    <div id="reservedList" class="space-y-3">
-                        <!-- Se llenará con JavaScript -->
-                    </div>
+                    <h3 class="text-xl font-bold mb-4">📋 Boletas Reservadas (Pendientes de Pago Completo)</h3>
+                    <div id="reservedList" class="space-y-3"></div>
                 </div>
 
                 <div class="bg-white/10 backdrop-blur-md rounded-lg p-6 mb-6">
-                    <h3 class="text-xl font-bold mb-4 text-green-400">✅ Boletas Vendidas (Pagadas)</h3>
-                    <div id="soldList" class="space-y-3">
-                        <!-- Se llenará con JavaScript -->
-                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-green-400">✅ Boletas Pagadas Completamente</h3>
+                    <div id="soldList" class="space-y-3"></div>
                 </div>
 
                 <div class="bg-white/10 backdrop-blur-md rounded-lg p-6">
@@ -354,6 +295,31 @@
         </div>
     </div>
 
+    <!-- Modal Actualizar Pago -->
+    <div id="updatePaymentModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+        <div class="bg-gradient-to-br from-blue-800 to-purple-800 rounded-xl p-6 max-w-md w-full">
+            <h3 class="text-2xl font-bold mb-4">💰 Actualizar Pago - Boleta #<span id="updateTicketNum"></span></h3>
+            <div class="space-y-4">
+                <div class="bg-white/10 rounded-lg p-3">
+                    <p class="text-sm">Pagado actual: $<span id="currentPaid"></span></p>
+                    <p class="text-sm">Pendiente: $<span id="pendingAmount"></span></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Nuevo monto total pagado</label>
+                    <input type="number" id="newAmountInput" min="0" max="25000" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="closeUpdatePayment()" class="flex-1 bg-gray-600 hover:bg-gray-500 py-3 rounded-lg font-semibold">
+                        Cancelar
+                    </button>
+                    <button onclick="saveUpdatedPayment()" class="flex-1 bg-green-600 hover:bg-green-500 py-3 rounded-lg font-semibold">
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <div class="max-w-7xl mx-auto px-4 py-6 text-center text-sm text-gray-400">
         <p>Rifa Universitaria 2025 • Todas las transacciones deben ser validadas</p>
@@ -361,411 +327,508 @@
     </div>
 
     <script type="module">
-        /* ---------------------------
-        INTEGRACIÓN FIREBASE + LÓGICA DE RAFIA
-        Reemplaza TU script actual por este
-        - Sincroniza reservas en tiempo real
-        - Guarda: buyer, payment, reservedAt, status, amountPaid
-        - Pago mínimo para reservar: 5000 COP
-        - Admin puede marcar como 'sold' o 'available'
-        ----------------------------*/
-
-        /* ---------- CONFIG - CAMBIA SI ES NECESARIO ---------- */
-        const WHATSAPP_NUMBER = '573151371553'; // tu número
-        const DRAW_DATE = new Date('2025-12-06T20:00:00'); // fecha sorteo
-        const TICKET_PRICE = 20000;
-        const TOTAL_TICKETS = 500;
-        const ADMIN_PASSWORD = '210621#'; // cambia si quieres
-        const MIN_RESERVATION_PAYMENT = 5000; // monto mínimo para apartar
-
-        /* ---------- IMPORTS FIREBASE (CDN ESM) ---------- */
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue, get, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
-        /* ---------- TU firebaseConfig (pega el tuyo exacto) ---------- */
+        const WHATSAPP_NUMBER = '573151371553';
+        const DRAW_DATE = new Date('2025-12-06T20:00:00');
+        const PAYMENT_DEADLINE = new Date('2025-12-04T23:59:59'); // Fecha límite pago completo
+        const TICKET_PRICE = 25000;
+        const TOTAL_TICKETS = 500;
+        const ADMIN_PASSWORD = '210621#';
+        const MIN_RESERVATION_PAYMENT = 5000;
+
         const firebaseConfig = {
-        apiKey: "AIzaSyBOuEPesCNGxWxKxcJuPbGnNHJArBuj7Nc",
-        authDomain: "rifa-universitaria-657c8.firebaseapp.com",
-        databaseURL: "https://rifa-universitaria-657c8-default-rtdb.firebaseio.com",
-        projectId: "rifa-universitaria-657c8",
-        storageBucket: "rifa-universitaria-657c8.firebasestorage.app",
-        messagingSenderId: "173786953583",
-        appId: "1:173786953583:web:7275693fc0948a65b35a9a",
-        measurementId: "G-H97SMY9BK5"
+            apiKey: "AIzaSyBOuEPesCNGxWxKxcJuPbGnNHJArBuj7Nc",
+            authDomain: "rifa-universitaria-657c8.firebaseapp.com",
+            databaseURL: "https://rifa-universitaria-657c8-default-rtdb.firebaseio.com",
+            projectId: "rifa-universitaria-657c8",
+            storageBucket: "rifa-universitaria-657c8.firebasestorage.app",
+            messagingSenderId: "173786953583",
+            appId: "1:173786953583:web:7275693fc0948a65b35a9a",
+            measurementId: "G-H97SMY9BK5"
         };
 
-        /* ---------- INICIALIZACIÓN ---------- */
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const RESERVES_PATH = 'rifa/reservas'; // nodo donde guardaremos reservas
+        const RESERVES_PATH = 'rifa/reservas';
 
-        /* ---------- ESTADO LOCAL (se sincroniza desde Firebase) ---------- */
-        let tickets = []; // array de 500 boletas { ticketNumber, numbers:[a,b], status, buyer, reservedAt, amountPaid }
+        let tickets = [];
         let selectedTicket = null;
         let isAdminLoggedIn = false;
+        let currentUpdateTicket = null;
 
-        /* ---------- Inicializar tickets (estructura local; re-render se hace al recibir datos) ---------- */
+        const paymentAccounts = {
+            Nequi: 'Nequi: 3167862046 (Maria Martinez)',
+            Llaves: 'Llaves: 3167862046 (Maria Martinez)',
+            Efectivo: 'Efectivo: Coordinar por WhatsApp',
+            Otro: 'Otro: Describe en WhatsApp'
+        };
+
         function buildInitialTickets() {
-        tickets = [];
-        for (let i = 0; i < TOTAL_TICKETS; i++) {
-            const ticketNum = i + 1;
-            const firstNumber = String(i).padStart(3, '0');
-            const secondNumber = String(999 - i).padStart(3, '0');
-            tickets.push({
-            ticketNumber: ticketNum,
-            numbers: [firstNumber, secondNumber],
-            status: 'available', // available | reserved | sold
-            buyer: null,
-            reservedAt: null,
-            amountPaid: 0
+            tickets = [];
+            for (let i = 0; i < TOTAL_TICKETS; i++) {
+                const ticketNum = i + 1;
+                const firstNumber = String(i).padStart(3, '0');
+                const secondNumber = String(999 - i).padStart(3, '0');
+                tickets.push({
+                    ticketNumber: ticketNum,
+                    numbers: [firstNumber, secondNumber],
+                    status: 'available',
+                    buyer: null,
+                    reservedAt: null,
+                    amountPaid: 0
+                });
+            }
+        }
+
+        function renderTickets() {
+            const grid = document.getElementById('ticketsGrid');
+            grid.innerHTML = '';
+            tickets.forEach(ticket => {
+                const button = document.createElement('button');
+                button.className = `ticket-card rounded-lg p-3 font-bold transition-all text-left ${
+                    ticket.status === 'available' 
+                        ? 'bg-green-500 hover:bg-blue-400 cursor-pointer shadow-lg' 
+                        : ticket.status === 'reserved'
+                        ? 'bg-yellow-600 cursor-not-allowed opacity-60'
+                        : 'bg-red-600 cursor-not-allowed opacity-60'
+                }`;
+                button.disabled = ticket.status !== 'available';
+                button.onclick = () => openForm(ticket);
+                button.innerHTML = `
+                    <div class="text-base mb-1">Boleta #${ticket.ticketNumber}</div>
+                    <div class="text-xs font-normal opacity-100">${ticket.numbers[0]}-${ticket.numbers[1]}</div>
+                `;
+                grid.appendChild(button);
+            });
+            updateStats();
+        }
+
+        function updateStats() {
+            const available = tickets.filter(t => t.status === 'available').length;
+            const reserved = tickets.filter(t => t.status === 'reserved').length;
+            const sold = tickets.filter(t => t.status === 'sold').length;
+            document.getElementById('availableCount').textContent = available;
+            document.getElementById('reservedCount').textContent = reserved;
+            document.getElementById('soldCount').textContent = sold;
+        }
+
+        function openForm(ticket) {
+            selectedTicket = ticket;
+            document.getElementById('selectedTicketNum').textContent = ticket.ticketNumber;
+            document.getElementById('selectedNumbers').textContent = `${ticket.numbers[0]} y ${ticket.numbers[1]}`;
+            document.getElementById('formModal').classList.remove('hidden');
+        }
+
+        function closeForm() {
+            document.getElementById('formModal').classList.add('hidden');
+            selectedTicket = null;
+            document.getElementById('inputName').value = '';
+            document.getElementById('inputEmail').value = '';
+            document.getElementById('inputPhone').value = '';
+            document.getElementById('inputAddress').value = '';
+            document.getElementById('inputPayment').value = '';
+            document.getElementById('inputAmount').value = '5000';
+            document.getElementById('inputTerms').checked = false;
+        }
+
+        async function firebaseSaveTicket(ticket) {
+            const key = 'boleta_' + ticket.ticketNumber;
+            await set(ref(db, `${RESERVES_PATH}/${key}`), ticket);
+        }
+
+        async function firebaseRemoveTicket(ticketNumber) {
+            const key = 'boleta_' + ticketNumber;
+            await remove(ref(db, `${RESERVES_PATH}/${key}`));
+        }
+
+        onValue(ref(db, RESERVES_PATH), (snapshot) => {
+            const data = snapshot.val() || {};
+            buildInitialTickets();
+            Object.keys(data).forEach(key => {
+                const t = data[key];
+                const match = key.match(/^boleta_(\d+)$/);
+                if (!match) return;
+                const ticketNumber = parseInt(match[1], 10);
+                const idx = tickets.findIndex(x => x.ticketNumber === ticketNumber);
+                if (idx !== -1) {
+                    tickets[idx] = {
+                        ticketNumber: ticketNumber,
+                        numbers: t.numbers || tickets[idx].numbers,
+                        status: t.status || tickets[idx].status,
+                        buyer: t.buyer || null,
+                        reservedAt: t.reservedAt || null,
+                        amountPaid: t.amountPaid || 0
+                    };
+                }
+            });
+            renderTickets();
+        });
+
+        function submitReservation() {
+            const name = document.getElementById('inputName').value.trim();
+            const email = document.getElementById('inputEmail').value.trim();
+            const phone = document.getElementById('inputPhone').value.trim();
+            const address = document.getElementById('inputAddress').value.trim();
+            const payment = document.getElementById('inputPayment').value;
+            const amount = parseInt(document.getElementById('inputAmount').value);
+            const terms = document.getElementById('inputTerms').checked;
+
+            if (!name || !email || !phone || !address || !payment) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+            if (!terms) {
+                alert('Debes aceptar los términos y condiciones');
+                return;
+            }
+            if (isNaN(amount) || amount < MIN_RESERVATION_PAYMENT) {
+                alert(`El monto mínimo para apartar es $${MIN_RESERVATION_PAYMENT.toLocaleString('es-CO')} COP`);
+                return;
+            }
+
+            const ticketIndex = tickets.findIndex(t => t.ticketNumber === selectedTicket.ticketNumber);
+            const ticket = tickets[ticketIndex];
+            ticket.status = 'reserved';
+            ticket.buyer = { name, email, phone, address, paymentMethod: payment };
+            ticket.reservedAt = new Date().toISOString();
+            ticket.amountPaid = amount;
+            ticket.initialPaymentConfirmed = false; // Para rastrear si confirmó el abono inicial
+
+            firebaseSaveTicket(ticket).then(() => {
+                document.getElementById('successTicketNum').textContent = ticket.ticketNumber;
+                document.getElementById('successNumbers').textContent = `${ticket.numbers[0]} y ${ticket.numbers[1]}`;
+                document.getElementById('successAmount').textContent = amount.toLocaleString('es-CO');
+                document.getElementById('successModal').classList.remove('hidden');
+
+                const message = `Hola! Reservé la Boleta #${ticket.ticketNumber}\n\nNúmeros: ${ticket.numbers[0]} y ${ticket.numbers[1]}\n\nDatos:\nNombre: ${name}\nCorreo: ${email}\nCelular: ${phone}\nDirección: ${address}\nMétodo: ${payment}\nMonto: $${amount.toLocaleString('es-CO')} de $25.000\n\nComprobante adjunto.`;
+                
+                setTimeout(() => {
+                    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
+                }, 2000);
+
+                setTimeout(() => {
+                    document.getElementById('successModal').classList.add('hidden');
+                    closeForm();
+                }, 5000);
             });
         }
+
+        async function confirmInitialPayment(ticketNumber) {
+            if (!confirm(`¿Confirmar que recibiste el abono inicial de la Boleta #${ticketNumber}?`)) return;
+            const key = 'boleta_' + ticketNumber;
+            const snap = await get(ref(db, `${RESERVES_PATH}/${key}`));
+            if (!snap.exists()) return;
+            const t = snap.val();
+            t.initialPaymentConfirmed = true;
+            t.initialPaymentConfirmedAt = new Date().toISOString();
+            await set(ref(db, `${RESERVES_PATH}/${key}`), t);
+            alert(`✅ Abono inicial confirmado para Boleta #${ticketNumber}`);
+            loadAdminData();
         }
 
-        /* ---------- RENDER UI ---------- */
-        function renderTickets() {
-        const grid = document.getElementById('ticketsGrid');
-        grid.innerHTML = '';
-        tickets.forEach(ticket => {
-            const button = document.createElement('button');
-            button.className = `ticket-card rounded-lg p-4 font-bold transition-all text-left ${
-            ticket.status === 'available' 
-                ? 'bg-green-500 hover:bg-blue-400 cursor-pointer shadow-lg' 
-                : ticket.status === 'reserved'
-                ? 'bg-yellow-600 cursor-not-allowed opacity-60'
-                : 'bg-red-600 cursor-not-allowed opacity-60'
-            }`;
-            button.disabled = ticket.status !== 'available';
-            button.onclick = () => openForm(ticket);
-            button.innerHTML = `
-            <div class="text-lg mb-1">Boleta #${ticket.ticketNumber}</div>
-            <div class="text-sm font-normal opacity-90">${ticket.numbers[0]} y ${ticket.numbers[1]}</div>
-            `;
-            grid.appendChild(button);
-        });
-        updateStats();
-        }
-
-        /* ---------- STATS ---------- */
-        function updateStats() {
-        const available = tickets.filter(t => t.status === 'available').length;
-        const reserved = tickets.filter(t => t.status === 'reserved').length;
-        const sold = tickets.filter(t => t.status === 'sold').length;
-        document.getElementById('availableCount').textContent = available;
-        document.getElementById('reservedCount').textContent = reserved;
-        document.getElementById('soldCount').textContent = sold;
-        }
-
-        /* ---------- MODALES ---------- */
-        function openForm(ticket) {
-        selectedTicket = ticket;
-        document.getElementById('selectedTicketNum').textContent = ticket.ticketNumber;
-        document.getElementById('selectedNumbers').textContent = `${ticket.numbers[0]} y ${ticket.numbers[1]}`;
-        document.getElementById('formModal').classList.remove('hidden');
-        }
-        function closeForm() {
-        document.getElementById('formModal').classList.add('hidden');
-        selectedTicket = null;
-        document.getElementById('inputName').value = '';
-        document.getElementById('inputEmail').value = '';
-        document.getElementById('inputPhone').value = '';
-        document.getElementById('inputPayment').value = '';
-        document.getElementById('inputTerms').checked = false;
-        }
-
-        /* ---------- FUNCIONES FIREBASE ---------- */
-        /* Guarda/actualiza reserva para una BOLETA (no por número de 000..999)
-        Key en DB -> rif a/reservas/boleta_<ticketNumber>
-        Contenido: { ticketNumber, numbers:[a,b], status, buyer, reservedAt, amountPaid }
-        */
-        async function firebaseSaveTicket(ticket) {
-        const key = 'boleta_' + ticket.ticketNumber;
-        await set(ref(db, `${RESERVES_PATH}/${key}`), ticket);
-        }
-
-        /* Eliminar registro (liberar) */
-        async function firebaseRemoveTicket(ticketNumber) {
-        const key = 'boleta_' + ticketNumber;
-        await remove(ref(db, `${RESERVES_PATH}/${key}`));
-        }
-
-        /* Escuchar cambios en tiempo real y actualizar "tickets" local */
-        onValue(ref(db, RESERVES_PATH), (snapshot) => {
-        const data = snapshot.val() || {};
-        // rebuild tickets base then merge DB
-        buildInitialTickets();
-        // recorrer cada entrada de DB y mapear al local
-        Object.keys(data).forEach(key => {
-            const t = data[key];
-            // key expected boleta_#
-            const match = key.match(/^boleta_(\d+)$/);
-            if (!match) return;
-            const ticketNumber = parseInt(match[1], 10);
-            const idx = tickets.findIndex(x => x.ticketNumber === ticketNumber);
-            if (idx !== -1) {
-            // merge
-            tickets[idx] = {
-                ticketNumber: ticketNumber,
-                numbers: t.numbers || tickets[idx].numbers,
-                status: t.status || tickets[idx].status,
-                buyer: t.buyer || null,
-                reservedAt: t.reservedAt || null,
-                amountPaid: t.amountPaid || 0
-            };
-            }
-        });
-        renderTickets();
-        });
-
-        /* ---------- RESERVA: validación de pago mínimo y guardado ---------- */
-        function submitReservation() {
-        const name = document.getElementById('inputName').value.trim();
-        const email = document.getElementById('inputEmail').value.trim();
-        const phone = document.getElementById('inputPhone').value.trim();
-        const payment = document.getElementById('inputPayment').value;
-        const terms = document.getElementById('inputTerms').checked;
-
-        if (!name || !email || !phone || !payment) {
-            alert('Por favor completa todos los campos');
-            return;
-        }
-        if (!terms) {
-            alert('Debes aceptar los términos y condiciones');
-            return;
-        }
-        if (!selectedTicket) {
-            alert('No hay boleta seleccionada');
-            return;
-        }
-
-        // Pedimos al comprador que confirme cuánto pagó (mínimo 5000)
-        const amountStr = prompt(`Ingresa el monto que pagarás para apartar la boleta (mínimo ${MIN_RESERVATION_PAYMENT.toLocaleString('es-CO')} COP):`, `${MIN_RESERVATION_PAYMENT}`);
-        const amount = parseInt(amountStr, 10);
-        if (isNaN(amount) || amount < MIN_RESERVATION_PAYMENT) {
-            alert(`El monto mínimo para apartar es ${MIN_RESERVATION_PAYMENT.toLocaleString('es-CO')} COP`);
-            return;
-        }
-
-        // Preparar objeto de reserva
-        const ticketIndex = tickets.findIndex(t => t.ticketNumber === selectedTicket.ticketNumber);
-        const ticket = tickets[ticketIndex];
-        ticket.status = 'reserved';
-        ticket.buyer = { name, email, phone, paymentMethod: payment };
-        ticket.reservedAt = new Date().toISOString();
-        ticket.amountPaid = amount;
-
-        // Guardar en Firebase (esto propagará el cambio a todos los clientes)
-        firebaseSaveTicket(ticket).then(() => {
-            // Mostrar modal de éxito y abrir WhatsApp
-            document.getElementById('successTicketNum').textContent = ticket.ticketNumber;
-            document.getElementById('successNumbers').textContent = `${ticket.numbers[0]} y ${ticket.numbers[1]}`;
-            document.getElementById('successModal').classList.remove('hidden');
-
-            // mensaje prellenado
-            const message = `Hola Emil! Reservé la Boleta #${ticket.ticketNumber} de la rifa del portátil gamer.\n\n📌 Números: ${ticket.numbers[0]} y ${ticket.numbers[1]}\n\nDatos:\nNombre: ${name}\nCorreo: ${email}\nCelular: ${phone}\nMétodo de pago: ${payment}\nMonto pagado: ${amount.toLocaleString('es-CO')} COP\n\nEnvío mi comprobante de pago.`;
-
-            const encoded = encodeURIComponent(message);
-            const isMobile = /Android|iPhone|iPad|iPod|Windows Phone|Opera Mini|IEMobile/i.test(navigator.userAgent);
-            if (isMobile) {
-            window.location.href = `whatsapp://send?phone=${WHATSAPP_NUMBER}&text=${encoded}`;
-            setTimeout(() => {
-                window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`, '_blank');
-            }, 700);
-            } else {
-            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`, '_blank');
-            }
-
-            // cerrar y refrescar UI local (la onValue de Firebase hará el re-render globalmente)
-            setTimeout(() => {
-            document.getElementById('successModal').classList.add('hidden');
-            closeForm();
-            }, 4000);
-        }).catch(err => {
-            console.error('Error guardando reserva en Firebase:', err);
-            alert('Ocurrió un error al guardar la reserva. Intenta de nuevo.');
-        });
-        }
-
-        /* ---------- ADMIN: funciones para cambiar estado en Firebase ---------- */
         async function markAsSold(ticketNumber) {
-        if (!confirm(`¿Confirmas que recibiste el pago de la Boleta #${ticketNumber}?`)) return;
-        const key = 'boleta_' + ticketNumber;
-        const ticketRef = ref(db, `${RESERVES_PATH}/${key}`);
-        // obtener el registro actual
-        const snap = await get(ticketRef);
-        if (!snap.exists()) {
-            alert('No existe la reserva en la base de datos.');
-            return;
-        }
-        const t = snap.val();
-        t.status = 'sold';
-        t.soldAt = new Date().toISOString();
-        await set(ticketRef, t);
-        alert(`✅ Boleta #${ticketNumber} marcada como VENDIDA`);
+            if (!confirm(`¿Marcar Boleta #${ticketNumber} como PAGADA COMPLETAMENTE?`)) return;
+            const key = 'boleta_' + ticketNumber;
+            const snap = await get(ref(db, `${RESERVES_PATH}/${key}`));
+            if (!snap.exists()) return;
+            const t = snap.val();
+            t.status = 'sold';
+            t.amountPaid = TICKET_PRICE;
+            t.soldAt = new Date().toISOString();
+            await set(ref(db, `${RESERVES_PATH}/${key}`), t);
+            alert(`✅ Boleta #${ticketNumber} marcada como VENDIDA`);
+            loadAdminData();
         }
 
         async function freeTicketNumber(ticketNumber) {
-        if (!confirm(`¿Liberar la Boleta #${ticketNumber}? Quedará disponible nuevamente.`)) return;
-        const key = 'boleta_' + ticketNumber;
-        // simplemente remover la entrada en DB para que vuelva a estado "available" localmente
-        await remove(ref(db, `${RESERVES_PATH}/${key}`));
-        alert(`🗑️ Boleta #${ticketNumber} liberada`);
+            if (!confirm(`¿Liberar la Boleta #${ticketNumber}?`)) return;
+            await firebaseRemoveTicket(ticketNumber);
+            alert(`🗑️ Boleta #${ticketNumber} liberada`);
+            loadAdminData();
         }
 
-        /* ---------- Panel admin: manejo de UI ---------- */
+        function openUpdatePayment(ticket) {
+            currentUpdateTicket = ticket;
+            document.getElementById('updateTicketNum').textContent = ticket.ticketNumber;
+            document.getElementById('currentPaid').textContent = ticket.amountPaid.toLocaleString('es-CO');
+            document.getElementById('pendingAmount').textContent = (TICKET_PRICE - ticket.amountPaid).toLocaleString('es-CO');
+            document.getElementById('newAmountInput').value = ticket.amountPaid;
+            document.getElementById('updatePaymentModal').classList.remove('hidden');
+        }
+
+        function closeUpdatePayment() {
+            document.getElementById('updatePaymentModal').classList.add('hidden');
+            currentUpdateTicket = null;
+        }
+
+        async function saveUpdatedPayment() {
+            if (!currentUpdateTicket) return;
+            const newAmount = parseInt(document.getElementById('newAmountInput').value);
+            if (isNaN(newAmount) || newAmount < 0 || newAmount > TICKET_PRICE) {
+                alert('Monto inválido');
+                return;
+            }
+
+            const key = 'boleta_' + currentUpdateTicket.ticketNumber;
+            const snap = await get(ref(db, `${RESERVES_PATH}/${key}`));
+            if (!snap.exists()) return;
+            
+            const t = snap.val();
+            t.amountPaid = newAmount;
+            
+            // NUEVO: Auto-confirmar abono inicial al actualizar pago
+            if (newAmount >= MIN_RESERVATION_PAYMENT && !t.initialPaymentConfirmed) {
+                t.initialPaymentConfirmed = true;
+                t.initialPaymentConfirmedAt = new Date().toISOString();
+            }
+            
+            // Si completó el pago, marcar como sold
+            if (newAmount >= TICKET_PRICE) {
+                t.status = 'sold';
+                t.soldAt = new Date().toISOString();
+            }
+            
+            await set(ref(db, `${RESERVES_PATH}/${key}`), t);
+            alert(`✅ Pago actualizado a $${newAmount.toLocaleString('es-CO')}`);
+            closeUpdatePayment();
+            loadAdminData();
+        }
+
         function checkAdminAccess() {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('admin') === 'true' || window.location.hash === '#admin') {
-            document.getElementById('adminPanel').classList.remove('hidden');
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('admin') === 'true' || window.location.hash === '#admin') {
+                document.getElementById('adminPanel').classList.remove('hidden');
+            }
         }
-        }
+
         function toggleAdmin() {
-        const panel = document.getElementById('adminPanel');
-        panel.classList.toggle('hidden');
-        if (!panel.classList.contains('hidden') && isAdminLoggedIn) {
-            loadAdminData();
+            const panel = document.getElementById('adminPanel');
+            panel.classList.toggle('hidden');
+            if (!panel.classList.contains('hidden') && isAdminLoggedIn) {
+                loadAdminData();
+            }
         }
-        }
+
         function loginAdmin() {
-        const password = document.getElementById('adminPassword').value;
-        if (password === ADMIN_PASSWORD) {
-            isAdminLoggedIn = true;
-            document.getElementById('adminLogin').classList.add('hidden');
-            document.getElementById('adminContent').classList.remove('hidden');
-            loadAdminData();
-        } else {
-            alert('❌ Contraseña incorrecta');
+            const password = document.getElementById('adminPassword').value;
+            if (password === ADMIN_PASSWORD) {
+                isAdminLoggedIn = true;
+                document.getElementById('adminLogin').classList.add('hidden');
+                document.getElementById('adminContent').classList.remove('hidden');
+                loadAdminData();
+            } else {
+                alert('❌ Contraseña incorrecta');
+            }
         }
-        }
+
         async function loadAdminData() {
-        // Leer todas las reservas desde Firebase
-        const snapshot = await get(ref(db, RESERVES_PATH));
-        const data = snapshot.val() || {};
-        const reservedArr = [];
-        const soldArr = [];
-        Object.keys(data).forEach(key => {
-            const t = data[key];
-            if (t.status === 'sold') soldArr.push(t);
-            else if (t.status === 'reserved') reservedArr.push(t);
-        });
+            const snapshot = await get(ref(db, RESERVES_PATH));
+            const data = snapshot.val() || {};
+            const reservedArr = [];
+            const soldArr = [];
 
-        const reservedList = document.getElementById('reservedList');
-        if (reservedArr.length === 0) {
-            reservedList.innerHTML = '<p class="text-gray-400">No hay boletas reservadas pendientes</p>';
-        } else {
-            reservedList.innerHTML = reservedArr.map(ticket => {
-            const reservedTime = ticket.reservedAt ? new Date(ticket.reservedAt) : new Date();
-            const timeLeft = Math.max(0, 24 - Math.floor((new Date() - reservedTime) / (1000 * 60 * 60)));
-            return `
-                <div class="bg-yellow-600/30 border border-yellow-400 rounded-lg p-4">
-                <div class="flex justify-between items-start mb-2">
-                    <div>
-                    <p class="font-bold text-lg">Boleta #${ticket.ticketNumber}</p>
-                    <p class="text-sm">📌 Números: ${ticket.numbers[0]} y ${ticket.numbers[1]}</p>
+            Object.keys(data).forEach(key => {
+                const t = data[key];
+                if (t.status === 'sold') soldArr.push(t);
+                else if (t.status === 'reserved') reservedArr.push(t);
+            });
+
+            const reservedList = document.getElementById('reservedList');
+            if (reservedArr.length === 0) {
+                reservedList.innerHTML = '<p class="text-gray-400">No hay boletas reservadas pendientes</p>';
+            } else {
+                reservedList.innerHTML = reservedArr.map(ticket => {
+                    const reservedTime = ticket.reservedAt ? new Date(ticket.reservedAt) : new Date();
+                    const pending = TICKET_PRICE - ticket.amountPaid;
+                    const percentPaid = Math.round((ticket.amountPaid / TICKET_PRICE) * 100);
+                    
+                    // Calcular tiempo restante según estado de confirmación
+                    let timeDisplay = '';
+                    let badgeColor = 'bg-yellow-500';
+                    
+                    if (!ticket.initialPaymentConfirmed) {
+                        // Si no confirmó abono inicial: mostrar 24 horas
+                        const timeLeft = Math.max(0, 24 - Math.floor((new Date() - reservedTime) / (1000 * 60 * 60)));
+                        timeDisplay = `⏰ ${timeLeft}h`;
+                        badgeColor = timeLeft <= 6 ? 'bg-red-500' : 'bg-yellow-500';
+                    } else {
+                        // Si confirmó abono: mostrar días hasta fecha límite de pago
+                        const now = new Date();
+                        const daysLeft = Math.ceil((PAYMENT_DEADLINE - now) / (1000 * 60 * 60 * 24));
+                        if (daysLeft > 0) {
+                            timeDisplay = `📅 ${daysLeft} días`;
+                            badgeColor = daysLeft <= 7 ? 'bg-orange-500' : 'bg-blue-500';
+                        } else {
+                            timeDisplay = '⚠️ Vencido';
+                            badgeColor = 'bg-red-600';
+                        }
+                    }
+                    
+                    return `
+                        <div class="bg-yellow-600/30 border border-yellow-400 rounded-lg p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <p class="font-bold text-lg">Boleta #${ticket.ticketNumber}</p>
+                                    <p class="text-sm">📌 ${ticket.numbers[0]} y ${ticket.numbers[1]}</p>
+                                </div>
+                                <span class="${badgeColor} px-2 py-1 rounded text-xs font-bold">${timeDisplay}</span>
+                            </div>
+                            
+                            <div class="bg-white/10 rounded-lg p-3 mb-3">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>Pagado:</span>
+                                    <span class="font-bold">${ticket.amountPaid.toLocaleString('es-CO')}</span>
+                                </div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span>Pendiente:</span>
+                                    <span class="font-bold text-red-300">${pending.toLocaleString('es-CO')}</span>
+                                </div>
+                                <div class="w-full bg-gray-700 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: ${percentPaid}%"></div>
+                                </div>
+                                <p class="text-xs text-center mt-1">${percentPaid}% pagado</p>
+                            </div>
+                            
+                            <div class="text-sm space-y-1 mb-3">
+                                <p>👤 <strong>Nombre:</strong> ${ticket.buyer?.name || '-'}</p>
+                                <p>📧 <strong>Email:</strong> ${ticket.buyer?.email || '-'}</p>
+                                <p>📱 <strong>Celular:</strong> ${ticket.buyer?.phone || '-'}</p>
+                                <p>📍 <strong>Dirección:</strong> ${ticket.buyer?.address || '-'}</p>
+                                <p>💳 <strong>Método:</strong> ${ticket.buyer?.paymentMethod || '-'}</p>
+                                <p>🕐 <strong>Reservado:</strong> ${reservedTime.toLocaleString('es-CO')}</p>
+                            </div>
+                            
+                            <div class="flex gap-2 mb-2">
+                                ${!ticket.initialPaymentConfirmed ? `
+                                <button onclick="confirmInitialPayment(${ticket.ticketNumber})" class="flex-1 bg-orange-600 hover:bg-orange-500 py-2 rounded font-semibold text-sm">
+                                    🔔 Confirmar Abono
+                                </button>
+                                ` : `
+                                <div class="flex-1 bg-green-500/30 border border-green-400 py-2 rounded text-center text-sm">
+                                    ✅ Abono Confirmado
+                                </div>
+                                `}
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="openUpdatePayment(${JSON.stringify(ticket).replace(/"/g, '&quot;')})" class="flex-1 bg-blue-600 hover:bg-blue-500 py-2 rounded font-semibold">
+                                    💰 Actualizar Pago
+                                </button>
+                                <button onclick="markAsSold(${ticket.ticketNumber})" class="flex-1 bg-green-600 hover:bg-green-500 py-2 rounded font-semibold">
+                                    ✅ Completada
+                                </button>
+                                <button onclick="freeTicketNumber(${ticket.ticketNumber})" class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded font-semibold">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const soldList = document.getElementById('soldList');
+            if (soldArr.length === 0) {
+                soldList.innerHTML = '<p class="text-gray-400">No hay boletas pagadas completamente</p>';
+            } else {
+                soldList.innerHTML = soldArr.map(ticket => `
+                    <div class="bg-green-600/30 border border-green-400 rounded-lg p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-bold text-lg">Boleta #${ticket.ticketNumber}</p>
+                                <p class="text-sm">${ticket.numbers[0]} y ${ticket.numbers[1]}</p>
+                                <div class="text-sm mt-2 space-y-1">
+                                    <p>👤 ${ticket.buyer?.name || '-'}</p>
+                                    <p>📧 ${ticket.buyer?.email || '-'}</p>
+                                    <p>📱 ${ticket.buyer?.phone || '-'}</p>
+                                    <p>📍 ${ticket.buyer?.address || '-'}</p>
+                                    <p class="font-bold text-green-300">💵 PAGADO: $25.000</p>
+                                </div>
+                            </div>
+                            <span class="bg-green-500 px-3 py-1 rounded text-xs font-bold">✅ PAGADA</span>
+                        </div>
                     </div>
-                    <span class="bg-yellow-500 px-2 py-1 rounded text-xs font-bold">⏰ ${timeLeft}h</span>
-                </div>
-                <div class="text-sm space-y-1 mb-3">
-                    <p>👤 <strong>Nombre:</strong> ${ticket.buyer?.name || '-'}</p>
-                    <p>📧 <strong>Email:</strong> ${ticket.buyer?.email || '-'}</p>
-                    <p>📱 <strong>Celular:</strong> ${ticket.buyer?.phone || '-'}</p>
-                    <p>💳 <strong>Pago:</strong> ${ticket.buyer?.paymentMethod || '-'}</p>
-                    <p>💵 <strong>Monto pagado:</strong> ${ticket.amountPaid ? ticket.amountPaid.toLocaleString('es-CO') : '0'}</p>
-                    <p>🕐 <strong>Reservado:</strong> ${ticket.reservedAt ? new Date(ticket.reservedAt).toLocaleString('es-CO') : '-'}</p>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="markAsSold(${ticket.ticketNumber})" class="flex-1 bg-green-600 hover:bg-green-500 py-2 rounded font-semibold">✅ Marcar como PAGADA</button>
-                    <button onclick="freeTicketNumber(${ticket.ticketNumber})" class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded font-semibold">🗑️</button>
-                </div>
-                </div>
-            `;
-            }).join('');
+                `).join('');
+            }
         }
 
-        const soldList = document.getElementById('soldList');
-        if (soldArr.length === 0) {
-            soldList.innerHTML = '<p class="text-gray-400">No hay boletas vendidas aún</p>';
-        } else {
-            soldList.innerHTML = soldArr.map(ticket => `
-            <div class="bg-green-600/30 border border-green-400 rounded-lg p-4">
-                <div class="flex justify-between items-start">
-                <div>
-                    <p class="font-bold text-lg">Boleta #${ticket.ticketNumber}</p>
-                    <p class="text-sm">📌 Números: ${ticket.numbers[0]} y ${ticket.numbers[1]}</p>
-                    <div class="text-sm mt-2 space-y-1">
-                    <p>👤 ${ticket.buyer?.name || '-'}</p>
-                    <p>📧 ${ticket.buyer?.email || '-'}</p>
-                    <p>📱 ${ticket.buyer?.phone || '-'}</p>
-                    </div>
-                </div>
-                <span class="bg-green-500 px-3 py-1 rounded text-xs font-bold">✅ PAGADA</span>
-                </div>
-            </div>
-            `).join('');
-        }
-        }
-
-        /* ---------- UTIL: liberar boleta manual ---------- */
         async function freeTicket() {
-        const ticketNum = parseInt(document.getElementById('ticketToFree').value);
-        if (ticketNum >= 1 && ticketNum <= TOTAL_TICKETS) {
-            await firebaseRemoveTicket(ticketNum);
-            document.getElementById('ticketToFree').value = '';
-            loadAdminData();
-        } else {
-            alert('❌ Número de boleta inválido (debe ser entre 1 y 500)');
-        }
+            const ticketNum = parseInt(document.getElementById('ticketToFree').value);
+            if (ticketNum >= 1 && ticketNum <= TOTAL_TICKETS) {
+                await firebaseRemoveTicket(ticketNum);
+                document.getElementById('ticketToFree').value = '';
+                alert(`🗑️ Boleta #${ticketNum} liberada`);
+                loadAdminData();
+            } else {
+                alert('❌ Número inválido');
+            }
         }
 
-        /* ---------- EXPIRACIÓN: liberar reservas si pasan 24h ---------- */
+        function showTerms() {
+            document.getElementById('termsModal').classList.remove('hidden');
+        }
+
+        function closeTerms() {
+            document.getElementById('termsModal').classList.add('hidden');
+        }
+
         async function cleanupExpiredReservations() {
-        const snap = await get(ref(db, RESERVES_PATH));
-        const data = snap.val() || {};
-        const now = Date.now();
-        for (const key of Object.keys(data)) {
-            const t = data[key];
-            if (t.status === 'reserved' && t.reservedAt) {
-            const reservedAt = new Date(t.reservedAt).getTime();
-            const hoursPassed = (now - reservedAt) / (1000 * 60 * 60);
-            if (hoursPassed >= 24) {
-                // eliminar para liberar
-                await remove(ref(db, `${RESERVES_PATH}/${key}`));
+            const snap = await get(ref(db, RESERVES_PATH));
+            const data = snap.val() || {};
+            const now = Date.now();
+            for (const key of Object.keys(data)) {
+                const t = data[key];
+                if (t.status === 'reserved' && t.reservedAt && !t.initialPaymentConfirmed) {
+                    // Solo liberar si no confirmó el abono inicial en 24 horas
+                    const reservedAt = new Date(t.reservedAt).getTime();
+                    const hoursPassed = (now - reservedAt) / (1000 * 60 * 60);
+                    if (hoursPassed >= 24) {
+                        await remove(ref(db, `${RESERVES_PATH}/${key}`));
+                    }
+                }
+                // Nota: No liberamos automáticamente después de la fecha límite de pago,
+                // el admin debe gestionar eso manualmente
             }
-            }
-        }
         }
 
-        /* ---------- Contador y helper UI ---------- */
         function updateCountdown() {
-        const now = new Date();
-        const diff = DRAW_DATE - now;
-        if (diff <= 0) {
-            document.getElementById('countdown').textContent = '¡Sorteo finalizado!';
-            return;
-        }
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        document.getElementById('countdown').textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            const now = new Date();
+            const diff = DRAW_DATE - now;
+            if (diff <= 0) {
+                document.getElementById('countdown').textContent = '¡Sorteo finalizado!';
+                return;
+            }
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            document.getElementById('countdown').textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
 
-        /* ---------- Mostrar datos de footer ---------- */
         document.getElementById('footerWhatsapp').textContent = `+57 ${WHATSAPP_NUMBER.slice(2)}`;
         document.getElementById('whatsappDisplay').textContent = `+57 ${WHATSAPP_NUMBER.slice(2)}`;
 
-        /* ---------- INICIALIZACIÓN FINAL ---------- */
-        buildInitialTickets(); // crea estructura base
-        renderTickets();       // dibuja inicialmente (será sobreescrita por onValue)
+        const paymentSelect = document.getElementById('inputPayment');
+        const paymentInfo = document.getElementById('paymentInfo');
+        const paymentDetails = document.getElementById('paymentDetails');
+
+        paymentSelect.addEventListener('change', () => {
+            const val = paymentSelect.value;
+            if (!val) {
+                paymentInfo.classList.add('hidden');
+                return;
+            }
+            paymentDetails.textContent = paymentAccounts[val] || '';
+            paymentInfo.classList.remove('hidden');
+        });
+
+        buildInitialTickets();
+        renderTickets();
         updateCountdown();
         setInterval(updateCountdown, 1000);
-        setInterval(() => {
-        // limpieza periódica (cada hora)
-        cleanupExpiredReservations().catch(console.error);
-        }, 1000 * 60 * 60);
+        setInterval(cleanupExpiredReservations, 1000 * 60 * 60);
+        checkAdminAccess();
 
-        checkAdminAccess(); // abre panel si ?admin=true
-        // Exponer funciones al scope global para que botones onClick en HTML las llamen:
         window.openForm = openForm;
         window.closeForm = closeForm;
         window.submitReservation = submitReservation;
@@ -775,7 +838,12 @@
         window.markAsSold = markAsSold;
         window.freeTicket = freeTicket;
         window.loadAdminData = loadAdminData;
-
+        window.showTerms = showTerms;
+        window.closeTerms = closeTerms;
+        window.openUpdatePayment = openUpdatePayment;
+        window.closeUpdatePayment = closeUpdatePayment;
+        window.saveUpdatedPayment = saveUpdatedPayment;
+        window.confirmInitialPayment = confirmInitialPayment;
     </script>
 </body>
 </html>
