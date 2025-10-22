@@ -18,6 +18,7 @@
         }
         
         .ticket-card {
+            width: 100%;
             transition: all 0.3s ease;
         }
         
@@ -96,7 +97,7 @@
             <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
                 🎫 Selecciona tu boleta
             </h2>
-            <div id="ticketsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            <div id="ticketsGrid" class="grid grid-cols-1 sm:grid-cols-6 lg:grid-cols-3 xl:grid-cols-6 gap-3 style=color: "black;">
                 <!-- Las boletas se generarán con JavaScript -->
             </div>
         </div>
@@ -287,7 +288,7 @@
     <!-- Modal Éxito -->
     <div id="successModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
         <div class="bg-green-600 rounded-xl p-8 max-w-md w-full text-center">
-            <div class="text-6xl mb-4 animate-bounce">✅</div>
+        </div>    <div class="text-6xl mb-4 animate-bounce">✅</div>
             <h3 class="text-2xl font-bold mb-4">Reserva Registrada</h3>
             <div class="bg-white/20 rounded-lg p-3 mb-4">
                 <p class="font-bold">Boleta #<span id="successTicketNum"></span></p>
@@ -359,362 +360,422 @@
         <p class="mt-2">WhatsApp: <span id="footerWhatsapp"></span></p>
     </div>
 
-    <script>
-        // ⚠️ CONFIGURACIÓN - CAMBIAR ESTOS VALORES
-        const WHATSAPP_NUMBER = '573151371553'; // Cambiar por tu número
-        const DRAW_DATE = new Date('2025-12-06T20:00:00');
+    <script type="module">
+        /* ---------------------------
+        INTEGRACIÓN FIREBASE + LÓGICA DE RAFIA
+        Reemplaza TU script actual por este
+        - Sincroniza reservas en tiempo real
+        - Guarda: buyer, payment, reservedAt, status, amountPaid
+        - Pago mínimo para reservar: 5000 COP
+        - Admin puede marcar como 'sold' o 'available'
+        ----------------------------*/
+
+        /* ---------- CONFIG - CAMBIA SI ES NECESARIO ---------- */
+        const WHATSAPP_NUMBER = '573151371553'; // tu número
+        const DRAW_DATE = new Date('2025-12-06T20:00:00'); // fecha sorteo
         const TICKET_PRICE = 20000;
         const TOTAL_TICKETS = 500;
-        const ADMIN_PASSWORD = '210621#'; // ⚠️ CAMBIAR ESTA CONTRASEÑA
+        const ADMIN_PASSWORD = '210621#'; // cambia si quieres
+        const MIN_RESERVATION_PAYMENT = 5000; // monto mínimo para apartar
 
-        // Estado de las boletas
-        let tickets = [];
+        /* ---------- IMPORTS FIREBASE (CDN ESM) ---------- */
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+
+        /* ---------- TU firebaseConfig (pega el tuyo exacto) ---------- */
+        const firebaseConfig = {
+        apiKey: "AIzaSyBOuEPesCNGxWxKxcJuPbGnNHJArBuj7Nc",
+        authDomain: "rifa-universitaria-657c8.firebaseapp.com",
+        databaseURL: "https://rifa-universitaria-657c8-default-rtdb.firebaseio.com",
+        projectId: "rifa-universitaria-657c8",
+        storageBucket: "rifa-universitaria-657c8.firebasestorage.app",
+        messagingSenderId: "173786953583",
+        appId: "1:173786953583:web:7275693fc0948a65b35a9a",
+        measurementId: "G-H97SMY9BK5"
+        };
+
+        /* ---------- INICIALIZACIÓN ---------- */
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const RESERVES_PATH = 'rifa/reservas'; // nodo donde guardaremos reservas
+
+        /* ---------- ESTADO LOCAL (se sincroniza desde Firebase) ---------- */
+        let tickets = []; // array de 500 boletas { ticketNumber, numbers:[a,b], status, buyer, reservedAt, amountPaid }
         let selectedTicket = null;
         let isAdminLoggedIn = false;
 
-        // Inicializar boletas
-        function initTickets() {
-            tickets = [];
-            for (let i = 0; i < TOTAL_TICKETS; i++) {
-                const ticketNum = i + 1;
-                const firstNumber = String(i).padStart(3, '0');
-                const secondNumber = String(999 - i).padStart(3, '0');
-                
-                tickets.push({
-                    ticketNumber: ticketNum,
-                    numbers: [firstNumber, secondNumber],
-                    status: 'available',
-                    buyer: null,
-                    reservedAt: null
-                });
-            }
-            renderTickets();
-            updateStats();
-        }
-
-        // Renderizar boletas
-        function renderTickets() {
-            const grid = document.getElementById('ticketsGrid');
-            grid.innerHTML = '';
-            
-            tickets.forEach(ticket => {
-                const button = document.createElement('button');
-                button.className = `ticket-card rounded-lg p-4 font-bold transition-all text-left ${
-                    ticket.status === 'available' 
-                        ? 'bg-green-500 hover:bg-blue-400 cursor-pointer shadow-lg' 
-                        : ticket.status === 'reserved'
-                        ? 'bg-yellow-600 cursor-not-allowed opacity-60'
-                        : 'bg-red-600 cursor-not-allowed opacity-60'
-                }`;
-                
-                button.disabled = ticket.status !== 'available';
-                button.onclick = () => openForm(ticket);
-                
-                button.innerHTML = `
-                    <div class="text-lg mb-1 style: color = "black" >Boleta #${ticket.ticketNumber}</div>
-                    <div class="text-sm font-normal opacity-90">
-                         ${ticket.numbers[0]} y ${ticket.numbers[1]}
-                    </div>
-                `;
-                
-                grid.appendChild(button);
+        /* ---------- Inicializar tickets (estructura local; re-render se hace al recibir datos) ---------- */
+        function buildInitialTickets() {
+        tickets = [];
+        for (let i = 0; i < TOTAL_TICKETS; i++) {
+            const ticketNum = i + 1;
+            const firstNumber = String(i).padStart(3, '0');
+            const secondNumber = String(999 - i).padStart(3, '0');
+            tickets.push({
+            ticketNumber: ticketNum,
+            numbers: [firstNumber, secondNumber],
+            status: 'available', // available | reserved | sold
+            buyer: null,
+            reservedAt: null,
+            amountPaid: 0
             });
         }
+        }
 
-        // Actualizar estadísticas
+        /* ---------- RENDER UI ---------- */
+        function renderTickets() {
+        const grid = document.getElementById('ticketsGrid');
+        grid.innerHTML = '';
+        tickets.forEach(ticket => {
+            const button = document.createElement('button');
+            button.className = `ticket-card rounded-lg p-4 font-bold transition-all text-left ${
+            ticket.status === 'available' 
+                ? 'bg-green-500 hover:bg-blue-400 cursor-pointer shadow-lg' 
+                : ticket.status === 'reserved'
+                ? 'bg-yellow-600 cursor-not-allowed opacity-60'
+                : 'bg-red-600 cursor-not-allowed opacity-60'
+            }`;
+            button.disabled = ticket.status !== 'available';
+            button.onclick = () => openForm(ticket);
+            button.innerHTML = `
+            <div class="text-lg mb-1">Boleta #${ticket.ticketNumber}</div>
+            <div class="text-sm font-normal opacity-90">${ticket.numbers[0]} y ${ticket.numbers[1]}</div>
+            `;
+            grid.appendChild(button);
+        });
+        updateStats();
+        }
+
+        /* ---------- STATS ---------- */
         function updateStats() {
-            const available = tickets.filter(t => t.status === 'available').length;
-            const reserved = tickets.filter(t => t.status === 'reserved').length;
-            const sold = tickets.filter(t => t.status === 'sold').length;
-            
-            document.getElementById('availableCount').textContent = available;
-            document.getElementById('reservedCount').textContent = reserved;
-            document.getElementById('soldCount').textContent = sold;
+        const available = tickets.filter(t => t.status === 'available').length;
+        const reserved = tickets.filter(t => t.status === 'reserved').length;
+        const sold = tickets.filter(t => t.status === 'sold').length;
+        document.getElementById('availableCount').textContent = available;
+        document.getElementById('reservedCount').textContent = reserved;
+        document.getElementById('soldCount').textContent = sold;
         }
 
-        // Abrir formulario
+        /* ---------- MODALES ---------- */
         function openForm(ticket) {
-            selectedTicket = ticket;
-            document.getElementById('selectedTicketNum').textContent = ticket.ticketNumber;
-            document.getElementById('selectedNumbers').textContent = `${ticket.numbers[0]} y ${ticket.numbers[1]}`;
-            document.getElementById('formModal').classList.remove('hidden');
+        selectedTicket = ticket;
+        document.getElementById('selectedTicketNum').textContent = ticket.ticketNumber;
+        document.getElementById('selectedNumbers').textContent = `${ticket.numbers[0]} y ${ticket.numbers[1]}`;
+        document.getElementById('formModal').classList.remove('hidden');
         }
-
-        // Cerrar formulario
         function closeForm() {
-            document.getElementById('formModal').classList.add('hidden');
-            selectedTicket = null;
-            // Limpiar campos
-            document.getElementById('inputName').value = '';
-            document.getElementById('inputEmail').value = '';
-            document.getElementById('inputPhone').value = '';
-            document.getElementById('inputPayment').value = '';
-            document.getElementById('inputTerms').checked = false;
+        document.getElementById('formModal').classList.add('hidden');
+        selectedTicket = null;
+        document.getElementById('inputName').value = '';
+        document.getElementById('inputEmail').value = '';
+        document.getElementById('inputPhone').value = '';
+        document.getElementById('inputPayment').value = '';
+        document.getElementById('inputTerms').checked = false;
         }
 
-        // Enviar reserva
+        /* ---------- FUNCIONES FIREBASE ---------- */
+        /* Guarda/actualiza reserva para una BOLETA (no por número de 000..999)
+        Key en DB -> rif a/reservas/boleta_<ticketNumber>
+        Contenido: { ticketNumber, numbers:[a,b], status, buyer, reservedAt, amountPaid }
+        */
+        async function firebaseSaveTicket(ticket) {
+        const key = 'boleta_' + ticket.ticketNumber;
+        await set(ref(db, `${RESERVES_PATH}/${key}`), ticket);
+        }
+
+        /* Eliminar registro (liberar) */
+        async function firebaseRemoveTicket(ticketNumber) {
+        const key = 'boleta_' + ticketNumber;
+        await remove(ref(db, `${RESERVES_PATH}/${key}`));
+        }
+
+        /* Escuchar cambios en tiempo real y actualizar "tickets" local */
+        onValue(ref(db, RESERVES_PATH), (snapshot) => {
+        const data = snapshot.val() || {};
+        // rebuild tickets base then merge DB
+        buildInitialTickets();
+        // recorrer cada entrada de DB y mapear al local
+        Object.keys(data).forEach(key => {
+            const t = data[key];
+            // key expected boleta_#
+            const match = key.match(/^boleta_(\d+)$/);
+            if (!match) return;
+            const ticketNumber = parseInt(match[1], 10);
+            const idx = tickets.findIndex(x => x.ticketNumber === ticketNumber);
+            if (idx !== -1) {
+            // merge
+            tickets[idx] = {
+                ticketNumber: ticketNumber,
+                numbers: t.numbers || tickets[idx].numbers,
+                status: t.status || tickets[idx].status,
+                buyer: t.buyer || null,
+                reservedAt: t.reservedAt || null,
+                amountPaid: t.amountPaid || 0
+            };
+            }
+        });
+        renderTickets();
+        });
+
+        /* ---------- RESERVA: validación de pago mínimo y guardado ---------- */
         function submitReservation() {
-            const name = document.getElementById('inputName').value;
-            const email = document.getElementById('inputEmail').value;
-            const phone = document.getElementById('inputPhone').value;
-            const payment = document.getElementById('inputPayment').value;
-            const terms = document.getElementById('inputTerms').checked;
-            
-            if (!name || !email || !phone || !payment) {
-                alert('Por favor completa todos los campos');
-                return;
-            }
-            
-            if (!terms) {
-                alert('Debes aceptar los términos y condiciones');
-                return;
-            }
-            
-            // Actualizar estado del ticket
-            const ticketIndex = tickets.findIndex(t => t.ticketNumber === selectedTicket.ticketNumber);
-            tickets[ticketIndex].status = 'reserved';
-            tickets[ticketIndex].buyer = { name, email, phone, payment };
-            tickets[ticketIndex].reservedAt = new Date().toISOString();
-            
-            // Mostrar modal de éxito
-            document.getElementById('successTicketNum').textContent = selectedTicket.ticketNumber;
-            document.getElementById('successNumbers').textContent = `${selectedTicket.numbers[0]} y ${selectedTicket.numbers[1]}`;
+        const name = document.getElementById('inputName').value.trim();
+        const email = document.getElementById('inputEmail').value.trim();
+        const phone = document.getElementById('inputPhone').value.trim();
+        const payment = document.getElementById('inputPayment').value;
+        const terms = document.getElementById('inputTerms').checked;
+
+        if (!name || !email || !phone || !payment) {
+            alert('Por favor completa todos los campos');
+            return;
+        }
+        if (!terms) {
+            alert('Debes aceptar los términos y condiciones');
+            return;
+        }
+        if (!selectedTicket) {
+            alert('No hay boleta seleccionada');
+            return;
+        }
+
+        // Pedimos al comprador que confirme cuánto pagó (mínimo 5000)
+        const amountStr = prompt(`Ingresa el monto que pagarás para apartar la boleta (mínimo ${MIN_RESERVATION_PAYMENT.toLocaleString('es-CO')} COP):`, `${MIN_RESERVATION_PAYMENT}`);
+        const amount = parseInt(amountStr, 10);
+        if (isNaN(amount) || amount < MIN_RESERVATION_PAYMENT) {
+            alert(`El monto mínimo para apartar es ${MIN_RESERVATION_PAYMENT.toLocaleString('es-CO')} COP`);
+            return;
+        }
+
+        // Preparar objeto de reserva
+        const ticketIndex = tickets.findIndex(t => t.ticketNumber === selectedTicket.ticketNumber);
+        const ticket = tickets[ticketIndex];
+        ticket.status = 'reserved';
+        ticket.buyer = { name, email, phone, paymentMethod: payment };
+        ticket.reservedAt = new Date().toISOString();
+        ticket.amountPaid = amount;
+
+        // Guardar en Firebase (esto propagará el cambio a todos los clientes)
+        firebaseSaveTicket(ticket).then(() => {
+            // Mostrar modal de éxito y abrir WhatsApp
+            document.getElementById('successTicketNum').textContent = ticket.ticketNumber;
+            document.getElementById('successNumbers').textContent = `${ticket.numbers[0]} y ${ticket.numbers[1]}`;
             document.getElementById('successModal').classList.remove('hidden');
-            
-            // Crear mensaje de WhatsApp
-            const message = `Hola Emil! Reservé la Boleta #${selectedTicket.ticketNumber} de la rifa del portátil gamer.\n\n📌 Números: ${selectedTicket.numbers[0]} y ${selectedTicket.numbers[1]}\n\nDatos:\nNombre: ${name}\nCorreo: ${email}\nCelular: ${phone}\nMétodo de pago: ${payment}\n\nEnvío mi comprobante de pago de $${TICKET_PRICE.toLocaleString('es-CO')} COP.`;
+
+            // mensaje prellenado
+            const message = `Hola Emil! Reservé la Boleta #${ticket.ticketNumber} de la rifa del portátil gamer.\n\n📌 Números: ${ticket.numbers[0]} y ${ticket.numbers[1]}\n\nDatos:\nNombre: ${name}\nCorreo: ${email}\nCelular: ${phone}\nMétodo de pago: ${payment}\nMonto pagado: ${amount.toLocaleString('es-CO')} COP\n\nEnvío mi comprobante de pago.`;
 
             const encoded = encodeURIComponent(message);
-
-            // Detectar móvil
             const isMobile = /Android|iPhone|iPad|iPod|Windows Phone|Opera Mini|IEMobile/i.test(navigator.userAgent);
-
-            // Intentar abrir la app de WhatsApp en móvil; si falla, abrir wa.me (web) como fallback.
-            // En escritorio abrir wa.me en una nueva pestaña.
             if (isMobile) {
-                // Intento directo al esquema whatsapp:// para abrir la app nativa
-                window.location.href = `whatsapp://send?phone=${WHATSAPP_NUMBER}&text=${encoded}`;
-
-                // Fallback a wa.me después de un pequeño retraso por si no se abre la app
-                setTimeout(() => {
-                    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`, '_blank');
-                }, 700);
-            } else {
-                window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`, '_blank');
-            }
-            
-            // Cerrar modales después de 5 segundos
+            window.location.href = `whatsapp://send?phone=${WHATSAPP_NUMBER}&text=${encoded}`;
             setTimeout(() => {
-                document.getElementById('successModal').classList.add('hidden');
-                closeForm();
-                renderTickets();
-                updateStats();
-            }, 5000);
-        }
-
-        // Mostrar términos
-        function showTerms() {
-            document.getElementById('termsModal').classList.remove('hidden');
-        }
-
-        // Cerrar términos
-        function closeTerms() {
-            document.getElementById('termsModal').classList.add('hidden');
-        }
-
-        // Contador regresivo
-        function updateCountdown() {
-            const now = new Date();
-            const diff = DRAW_DATE - now;
-            
-            if (diff <= 0) {
-                document.getElementById('countdown').textContent = '¡Sorteo finalizado!';
-                return;
+                window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`, '_blank');
+            }, 700);
+            } else {
+            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`, '_blank');
             }
-            
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-            
-            document.getElementById('countdown').textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+            // cerrar y refrescar UI local (la onValue de Firebase hará el re-render globalmente)
+            setTimeout(() => {
+            document.getElementById('successModal').classList.add('hidden');
+            closeForm();
+            }, 4000);
+        }).catch(err => {
+            console.error('Error guardando reserva en Firebase:', err);
+            alert('Ocurrió un error al guardar la reserva. Intenta de nuevo.');
+        });
         }
 
-        // Verificar reservas expiradas (24 horas)
-        function checkExpiredReservations() {
-            const now = new Date();
-            tickets.forEach(ticket => {
-                if (ticket.status === 'reserved' && ticket.reservedAt) {
-                    const reservedTime = new Date(ticket.reservedAt);
-                    const hoursPassed = (now - reservedTime) / (1000 * 60 * 60);
-                    if (hoursPassed >= 2) {
-                        ticket.status = 'available';
-                        ticket.buyer = null;
-                        ticket.reservedAt = null;
-                    }
-                }
-            });
-            renderTickets();
-            updateStats();
+        /* ---------- ADMIN: funciones para cambiar estado en Firebase ---------- */
+        async function markAsSold(ticketNumber) {
+        if (!confirm(`¿Confirmas que recibiste el pago de la Boleta #${ticketNumber}?`)) return;
+        const key = 'boleta_' + ticketNumber;
+        const ticketRef = ref(db, `${RESERVES_PATH}/${key}`);
+        // obtener el registro actual
+        const snap = await get(ticketRef);
+        if (!snap.exists()) {
+            alert('No existe la reserva en la base de datos.');
+            return;
+        }
+        const t = snap.val();
+        t.status = 'sold';
+        t.soldAt = new Date().toISOString();
+        await set(ticketRef, t);
+        alert(`✅ Boleta #${ticketNumber} marcada como VENDIDA`);
         }
 
-        // Mostrar número de WhatsApp en footer
+        async function freeTicketNumber(ticketNumber) {
+        if (!confirm(`¿Liberar la Boleta #${ticketNumber}? Quedará disponible nuevamente.`)) return;
+        const key = 'boleta_' + ticketNumber;
+        // simplemente remover la entrada en DB para que vuelva a estado "available" localmente
+        await remove(ref(db, `${RESERVES_PATH}/${key}`));
+        alert(`🗑️ Boleta #${ticketNumber} liberada`);
+        }
+
+        /* ---------- Panel admin: manejo de UI ---------- */
+        function checkAdminAccess() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('admin') === 'true' || window.location.hash === '#admin') {
+            document.getElementById('adminPanel').classList.remove('hidden');
+        }
+        }
+        function toggleAdmin() {
+        const panel = document.getElementById('adminPanel');
+        panel.classList.toggle('hidden');
+        if (!panel.classList.contains('hidden') && isAdminLoggedIn) {
+            loadAdminData();
+        }
+        }
+        function loginAdmin() {
+        const password = document.getElementById('adminPassword').value;
+        if (password === ADMIN_PASSWORD) {
+            isAdminLoggedIn = true;
+            document.getElementById('adminLogin').classList.add('hidden');
+            document.getElementById('adminContent').classList.remove('hidden');
+            loadAdminData();
+        } else {
+            alert('❌ Contraseña incorrecta');
+        }
+        }
+        async function loadAdminData() {
+        // Leer todas las reservas desde Firebase
+        const snapshot = await get(ref(db, RESERVES_PATH));
+        const data = snapshot.val() || {};
+        const reservedArr = [];
+        const soldArr = [];
+        Object.keys(data).forEach(key => {
+            const t = data[key];
+            if (t.status === 'sold') soldArr.push(t);
+            else if (t.status === 'reserved') reservedArr.push(t);
+        });
+
+        const reservedList = document.getElementById('reservedList');
+        if (reservedArr.length === 0) {
+            reservedList.innerHTML = '<p class="text-gray-400">No hay boletas reservadas pendientes</p>';
+        } else {
+            reservedList.innerHTML = reservedArr.map(ticket => {
+            const reservedTime = ticket.reservedAt ? new Date(ticket.reservedAt) : new Date();
+            const timeLeft = Math.max(0, 24 - Math.floor((new Date() - reservedTime) / (1000 * 60 * 60)));
+            return `
+                <div class="bg-yellow-600/30 border border-yellow-400 rounded-lg p-4">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                    <p class="font-bold text-lg">Boleta #${ticket.ticketNumber}</p>
+                    <p class="text-sm">📌 Números: ${ticket.numbers[0]} y ${ticket.numbers[1]}</p>
+                    </div>
+                    <span class="bg-yellow-500 px-2 py-1 rounded text-xs font-bold">⏰ ${timeLeft}h</span>
+                </div>
+                <div class="text-sm space-y-1 mb-3">
+                    <p>👤 <strong>Nombre:</strong> ${ticket.buyer?.name || '-'}</p>
+                    <p>📧 <strong>Email:</strong> ${ticket.buyer?.email || '-'}</p>
+                    <p>📱 <strong>Celular:</strong> ${ticket.buyer?.phone || '-'}</p>
+                    <p>💳 <strong>Pago:</strong> ${ticket.buyer?.paymentMethod || '-'}</p>
+                    <p>💵 <strong>Monto pagado:</strong> ${ticket.amountPaid ? ticket.amountPaid.toLocaleString('es-CO') : '0'}</p>
+                    <p>🕐 <strong>Reservado:</strong> ${ticket.reservedAt ? new Date(ticket.reservedAt).toLocaleString('es-CO') : '-'}</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="markAsSold(${ticket.ticketNumber})" class="flex-1 bg-green-600 hover:bg-green-500 py-2 rounded font-semibold">✅ Marcar como PAGADA</button>
+                    <button onclick="freeTicketNumber(${ticket.ticketNumber})" class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded font-semibold">🗑️</button>
+                </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        const soldList = document.getElementById('soldList');
+        if (soldArr.length === 0) {
+            soldList.innerHTML = '<p class="text-gray-400">No hay boletas vendidas aún</p>';
+        } else {
+            soldList.innerHTML = soldArr.map(ticket => `
+            <div class="bg-green-600/30 border border-green-400 rounded-lg p-4">
+                <div class="flex justify-between items-start">
+                <div>
+                    <p class="font-bold text-lg">Boleta #${ticket.ticketNumber}</p>
+                    <p class="text-sm">📌 Números: ${ticket.numbers[0]} y ${ticket.numbers[1]}</p>
+                    <div class="text-sm mt-2 space-y-1">
+                    <p>👤 ${ticket.buyer?.name || '-'}</p>
+                    <p>📧 ${ticket.buyer?.email || '-'}</p>
+                    <p>📱 ${ticket.buyer?.phone || '-'}</p>
+                    </div>
+                </div>
+                <span class="bg-green-500 px-3 py-1 rounded text-xs font-bold">✅ PAGADA</span>
+                </div>
+            </div>
+            `).join('');
+        }
+        }
+
+        /* ---------- UTIL: liberar boleta manual ---------- */
+        async function freeTicket() {
+        const ticketNum = parseInt(document.getElementById('ticketToFree').value);
+        if (ticketNum >= 1 && ticketNum <= TOTAL_TICKETS) {
+            await firebaseRemoveTicket(ticketNum);
+            document.getElementById('ticketToFree').value = '';
+            loadAdminData();
+        } else {
+            alert('❌ Número de boleta inválido (debe ser entre 1 y 500)');
+        }
+        }
+
+        /* ---------- EXPIRACIÓN: liberar reservas si pasan 24h ---------- */
+        async function cleanupExpiredReservations() {
+        const snap = await get(ref(db, RESERVES_PATH));
+        const data = snap.val() || {};
+        const now = Date.now();
+        for (const key of Object.keys(data)) {
+            const t = data[key];
+            if (t.status === 'reserved' && t.reservedAt) {
+            const reservedAt = new Date(t.reservedAt).getTime();
+            const hoursPassed = (now - reservedAt) / (1000 * 60 * 60);
+            if (hoursPassed >= 24) {
+                // eliminar para liberar
+                await remove(ref(db, `${RESERVES_PATH}/${key}`));
+            }
+            }
+        }
+        }
+
+        /* ---------- Contador y helper UI ---------- */
+        function updateCountdown() {
+        const now = new Date();
+        const diff = DRAW_DATE - now;
+        if (diff <= 0) {
+            document.getElementById('countdown').textContent = '¡Sorteo finalizado!';
+            return;
+        }
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        document.getElementById('countdown').textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }
+
+        /* ---------- Mostrar datos de footer ---------- */
         document.getElementById('footerWhatsapp').textContent = `+57 ${WHATSAPP_NUMBER.slice(2)}`;
         document.getElementById('whatsappDisplay').textContent = `+57 ${WHATSAPP_NUMBER.slice(2)}`;
 
-        // === FUNCIONES DE ADMINISTRADOR ===
-        
-        // Detectar acceso a página admin mediante URL
-        function checkAdminAccess() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('admin') === 'true' || window.location.hash === '#admin') {
-                document.getElementById('adminPanel').classList.remove('hidden');
-            }
-        }
-        
-        // Alternar panel admin
-        function toggleAdmin() {
-            const panel = document.getElementById('adminPanel');
-            panel.classList.toggle('hidden');
-            if (!panel.classList.contains('hidden') && isAdminLoggedIn) {
-                loadAdminData();
-            }
-        }
-
-        // Login admin
-        function loginAdmin() {
-            const password = document.getElementById('adminPassword').value;
-            if (password === ADMIN_PASSWORD) {
-                isAdminLoggedIn = true;
-                document.getElementById('adminLogin').classList.add('hidden');
-                document.getElementById('adminContent').classList.remove('hidden');
-                loadAdminData();
-            } else {
-                alert('❌ Contraseña incorrecta');
-            }
-        }
-
-        // Cargar datos en panel admin
-        function loadAdminData() {
-            // Boletas reservadas
-            const reservedTickets = tickets.filter(t => t.status === 'reserved');
-            const reservedList = document.getElementById('reservedList');
-            
-            if (reservedTickets.length === 0) {
-                reservedList.innerHTML = '<p class="text-gray-400">No hay boletas reservadas pendientes</p>';
-            } else {
-                reservedList.innerHTML = reservedTickets.map(ticket => {
-                    const reservedTime = new Date(ticket.reservedAt);
-                    const timeLeft = 24 - Math.floor((new Date() - reservedTime) / (1000 * 60 * 60));
-                    
-                    return `
-                        <div class="bg-yellow-600/30 border border-yellow-400 rounded-lg p-4">
-                            <div class="flex justify-between items-start mb-2">
-                                <div>
-                                    <p class="font-bold text-lg">Boleta #${ticket.ticketNumber}</p>
-                                    <p class="text-sm">📌 Números: ${ticket.numbers[0]} y ${ticket.numbers[1]}</p>
-                                </div>
-                                <span class="bg-yellow-500 px-2 py-1 rounded text-xs font-bold">
-                                    ⏰ ${timeLeft}h restantes
-                                </span>
-                            </div>
-                            <div class="text-sm space-y-1 mb-3">
-                                <p>👤 <strong>Nombre:</strong> ${ticket.buyer.name}</p>
-                                <p>📧 <strong>Email:</strong> ${ticket.buyer.email}</p>
-                                <p>📱 <strong>Celular:</strong> ${ticket.buyer.phone}</p>
-                                <p>💳 <strong>Pago:</strong> ${ticket.buyer.payment}</p>
-                                <p>🕐 <strong>Reservado:</strong> ${reservedTime.toLocaleString('es-CO')}</p>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="markAsSold(${ticket.ticketNumber})" class="flex-1 bg-green-600 hover:bg-green-500 py-2 rounded font-semibold">
-                                    ✅ Marcar como PAGADA
-                                </button>
-                                <button onclick="freeTicketNumber(${ticket.ticketNumber})" class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded font-semibold">
-                                    🗑️
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-
-            // Boletas vendidas
-            const soldTickets = tickets.filter(t => t.status === 'sold');
-            const soldList = document.getElementById('soldList');
-            
-            if (soldTickets.length === 0) {
-                soldList.innerHTML = '<p class="text-gray-400">No hay boletas vendidas aún</p>';
-            } else {
-                soldList.innerHTML = soldTickets.map(ticket => `
-                    <div class="bg-green-600/30 border border-green-400 rounded-lg p-4">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="font-bold text-lg">Boleta #${ticket.ticketNumber}</p>
-                                <p class="text-sm">📌 Números: ${ticket.numbers[0]} y ${ticket.numbers[1]}</p>
-                                <div class="text-sm mt-2 space-y-1">
-                                    <p>👤 ${ticket.buyer.name}</p>
-                                    <p>📧 ${ticket.buyer.email}</p>
-                                    <p>📱 ${ticket.buyer.phone}</p>
-                                </div>
-                            </div>
-                            <span class="bg-green-500 px-3 py-1 rounded text-xs font-bold">
-                                ✅ PAGADA
-                            </span>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        // Marcar boleta como vendida (pagada)
-        function markAsSold(ticketNumber) {
-            if (confirm(`¿Confirmas que recibiste el pago de la Boleta #${ticketNumber}?`)) {
-                const ticketIndex = tickets.findIndex(t => t.ticketNumber === ticketNumber);
-                if (ticketIndex !== -1) {
-                    tickets[ticketIndex].status = 'sold';
-                    renderTickets();
-                    updateStats();
-                    loadAdminData();
-                    alert(`✅ Boleta #${ticketNumber} marcada como VENDIDA`);
-                }
-            }
-        }
-
-        // Liberar boleta (cancelar reserva)
-        function freeTicketNumber(ticketNumber) {
-            if (confirm(`¿Liberar la Boleta #${ticketNumber}? Quedará disponible nuevamente.`)) {
-                const ticketIndex = tickets.findIndex(t => t.ticketNumber === ticketNumber);
-                if (ticketIndex !== -1) {
-                    tickets[ticketIndex].status = 'available';
-                    tickets[ticketIndex].buyer = null;
-                    tickets[ticketIndex].reservedAt = null;
-                    renderTickets();
-                    updateStats();
-                    loadAdminData();
-                    alert(`🗑️ Boleta #${ticketNumber} liberada`);
-                }
-            }
-        }
-
-        // Liberar boleta desde input manual
-        function freeTicket() {
-            const ticketNum = parseInt(document.getElementById('ticketToFree').value);
-            if (ticketNum >= 1 && ticketNum <= 500) {
-                freeTicketNumber(ticketNum);
-                document.getElementById('ticketToFree').value = '';
-            } else {
-                alert('❌ Número de boleta inválido (debe ser entre 1 y 500)');
-            }
-        }
-
-        // Inicializar
-        // Inicializar
-        initTickets();
+        /* ---------- INICIALIZACIÓN FINAL ---------- */
+        buildInitialTickets(); // crea estructura base
+        renderTickets();       // dibuja inicialmente (será sobreescrita por onValue)
         updateCountdown();
         setInterval(updateCountdown, 1000);
-        setInterval(checkExpiredReservations, 60000); // Cada minuto
-        checkAdminAccess(); // ⚠️ IMPORTANTE: Verificar si se accede con URL de admin
-        checkAdminAccess(); // Verificar si se accede con URL de admin
+        setInterval(() => {
+        // limpieza periódica (cada hora)
+        cleanupExpiredReservations().catch(console.error);
+        }, 1000 * 60 * 60);
+
+        checkAdminAccess(); // abre panel si ?admin=true
+        // Exponer funciones al scope global para que botones onClick en HTML las llamen:
+        window.openForm = openForm;
+        window.closeForm = closeForm;
+        window.submitReservation = submitReservation;
+        window.toggleAdmin = toggleAdmin;
+        window.loginAdmin = loginAdmin;
+        window.freeTicketNumber = freeTicketNumber;
+        window.markAsSold = markAsSold;
+        window.freeTicket = freeTicket;
+        window.loadAdminData = loadAdminData;
+
     </script>
 </body>
 </html>
