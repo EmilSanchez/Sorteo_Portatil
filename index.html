@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -279,10 +280,6 @@
             <div class="text-6xl mb-4 animate-bounce">✅</div>
             <h3 class="text-2xl font-bold mb-4">¡Compra Registrada!</h3>
             <div class="bg-white/20 rounded-lg p-4 mb-4 text-left">
-        <div class="bg-green-600 rounded-xl p-8 max-w-md w-full text-center">
-            <div class="text-6xl mb-4 animate-bounce">✅</div>
-            <h3 class="text-2xl font-bold mb-4">¡Compra Registrada!</h3>
-            <div class="bg-white/20 rounded-lg p-4 mb-4 text-left">
                 <p class="font-bold text-center mb-2">Boleta #<span id="successTicketNum"></span></p>
                 <p class="text-sm">📧 Recibirás un correo con tus números</p>
                 <p class="text-sm mt-2">💰 Pagado: $<span id="successAmount"></span></p>
@@ -339,8 +336,24 @@
             </div>
 
             <div id="adminContent" class="hidden space-y-6">
-                <!-- Buscar Ganador -->
-                <div class="bg-white/10 rounded-lg p-6">
+                <!-- Pestañas de navegación -->
+                <div class="flex gap-2 bg-white/10 p-2 rounded-lg overflow-x-auto">
+                    <button onclick="switchAdminTab('search')" id="tabSearch" class="px-4 py-2 rounded-lg font-semibold whitespace-nowrap bg-blue-600">
+                        🎯 Buscar Ganador
+                    </button>
+                    <button onclick="switchAdminTab('numbers')" id="tabNumbers" class="px-4 py-2 rounded-lg font-semibold whitespace-nowrap bg-white/20">
+                        🔢 Números
+                    </button>
+                    <button onclick="switchAdminTab('database')" id="tabDatabase" class="px-4 py-2 rounded-lg font-semibold whitespace-nowrap bg-white/20">
+                        💾 Base de Datos
+                    </button>
+                    <button onclick="switchAdminTab('payment')" id="tabPayment" class="px-4 py-2 rounded-lg font-semibold whitespace-nowrap bg-white/20">
+                        💰 Abonos
+                    </button>
+                </div>
+
+                <!-- Tab: Buscar Ganador -->
+                <div id="contentSearch" class="bg-white/10 rounded-lg p-6">
                     <h3 class="text-xl font-bold mb-4">🎯 Buscar Ganador</h3>
                     <div class="flex gap-3">
                         <input type="number" id="winningNumber" placeholder="Ej: 347" min="0" max="999" class="flex-1 px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white">
@@ -349,20 +362,103 @@
                     <div id="winnerResult" class="mt-4"></div>
                 </div>
 
-                <!-- Registrar Abono Manual -->
-                <div class="bg-white/10 rounded-lg p-6">
+                <!-- Tab: Números -->
+                <div id="contentNumbers" class="hidden bg-white/10 rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-4">🔢 Gestión de Números</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="bg-green-900/30 border border-green-500 rounded-lg p-4">
+                            <h4 class="font-bold text-lg mb-2 text-green-400">Números Disponibles</h4>
+                            <p class="text-3xl font-bold mb-2" id="availableCount">-</p>
+                            <p class="text-sm text-gray-300">de 1000 números totales</p>
+                        </div>
+                        <div class="bg-red-900/30 border border-red-500 rounded-lg p-4">
+                            <h4 class="font-bold text-lg mb-2 text-red-400">Números Asignados</h4>
+                            <p class="text-3xl font-bold mb-2" id="assignedCount">-</p>
+                            <p class="text-sm text-gray-300">números en uso</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <input type="text" id="searchNumber" placeholder="Buscar número específico (ej: 347)" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white mb-2">
+                        <div class="flex gap-2">
+                            <button onclick="searchSpecificNumber()" class="flex-1 bg-purple-600 hover:bg-purple-500 py-2 rounded-lg font-semibold">
+                                🔍 Buscar
+                            </button>
+                            <button onclick="showAllNumbers('available')" class="flex-1 bg-green-600 hover:bg-green-500 py-2 rounded-lg font-semibold">
+                                Ver Disponibles
+                            </button>
+                            <button onclick="showAllNumbers('assigned')" class="flex-1 bg-red-600 hover:bg-red-500 py-2 rounded-lg font-semibold">
+                                Ver Asignados
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="numbersResult" class="mt-4 max-h-96 overflow-y-auto"></div>
+                </div>
+
+                <!-- Tab: Base de Datos -->
+                <div id="contentDatabase" class="hidden bg-white/10 rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-4">💾 Base de Datos Completa</h3>
+                    
+                    <div class="mb-4 flex gap-3 flex-wrap">
+                        <input type="text" id="searchDatabase" placeholder="Buscar por nombre, correo, teléfono..." class="flex-1 min-w-[250px] px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white">
+                        <select id="filterStatus" class="px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white">
+                            <option value="all">Todos</option>
+                            <option value="pagado">Pagados</option>
+                            <option value="abonado">Abonados</option>
+                        </select>
+                        <button onclick="filterDatabase()" class="bg-blue-600 hover:bg-blue-500 px-6 py-2 rounded-lg font-semibold">
+                            Filtrar
+                        </button>
+                        <button onclick="exportToCSV()" class="bg-green-600 hover:bg-green-500 px-6 py-2 rounded-lg font-semibold">
+                            📥 Exportar CSV
+                        </button>
+                    </div>
+
+                    <div class="bg-black/30 rounded p-3 mb-4 text-sm">
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <p class="text-gray-400">Total Boletas:</p>
+                                <p class="text-xl font-bold" id="dbTotalTickets">0</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400">Pagadas Completo:</p>
+                                <p class="text-xl font-bold text-green-400" id="dbPaidTickets">0</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400">Con Abonos:</p>
+                                <p class="text-xl font-bold text-yellow-400" id="dbPartialTickets">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm" id="databaseTable">
+                            <thead class="bg-black/50">
+                                <tr>
+                                    <th class="px-3 py-2 text-left">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="databaseTableBody" class="divide-y divide-white/10">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab: Abonos -->
+                <div id="contentPayment" class="hidden bg-white/10 rounded-lg p-6">
                     <h3 class="text-xl font-bold mb-4">💰 Registrar Abono Manual</h3>
                     <div class="grid grid-cols-2 gap-3">
                         <input type="number" id="manualTicketNum" placeholder="# Boleta" min="1" max="500" class="px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white">
                         <input type="number" id="manualAmount" placeholder="Monto" min="1000" class="px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white">
                         <button onclick="registerManualPayment()" class="col-span-2 bg-green-600 hover:bg-green-500 py-2 rounded-lg font-semibold">Registrar Pago</button>
                     </div>
-                </div>
-
-                <!-- Lista de Reservas -->
-                <div class="bg-white/10 rounded-lg p-6">
-                    <h3 class="text-xl font-bold mb-4">📋 Todas las Boletas</h3>
-                    <div id="allTicketsList" class="space-y-3 max-h-96 overflow-y-auto"></div>
+                    
+                    <div class="mt-6 bg-black/30 rounded-lg p-4">
+                        <h4 class="font-bold mb-3">Historial de Abonos Recientes</h4>
+                        <div id="recentPayments" class="space-y-2 max-h-64 overflow-y-auto"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -435,11 +531,19 @@ emailjs.init(EMAILJS_CONFIG.publicKey);
 
 // Pool de números disponibles (000-999)
 let availableNumbers = [];
-for (let i = 0; i <= 999; i++) {
-    availableNumbers.push(String(i).padStart(3, '0'));
+let assignedNumbers = {}; 
+let isAdminLoggedIn = false;
+let currentAdminTab = 'search';
+let allTicketsCache = [];
+
+function initializeNumberPool() {
+    availableNumbers = [];
+    for (let i = 0; i <= 999; i++) {
+        availableNumbers.push(String(i).padStart(3, '0'));
+    }
 }
 
-let isAdminLoggedIn = false;
+initializeNumberPool();
 
 /* ============================================
    FUNCIONES AUXILIARES
@@ -506,7 +610,6 @@ onValue(ref(db, 'tickets'), (snapshot) => {
     const percentage = Math.round((sold / TOTAL_TICKETS) * 100);
     
     document.getElementById('soldPercentage').textContent = percentage;
-    document.getElementById('soldCount').textContent = `${sold} de ${TOTAL_TICKETS}`;
 });
 
 // Actualizar contador próximo sorteo
@@ -575,7 +678,7 @@ async function submitPurchase() {
     }
     
     if (amount < MIN_PAYMENT || amount > TICKET_PRICE) {
-        alert(`❌ Monto debe estar entre $${MIN_PAYMENT.toLocaleString('es-CO')} y $${TICKET_PRICE.toLocaleString('es-CO')}`);
+        alert(`❌ Monto debe estar entre ${MIN_PAYMENT.toLocaleString('es-CO')} y ${TICKET_PRICE.toLocaleString('es-CO')}`);
         return;
     }
     
@@ -666,13 +769,64 @@ async function submitPurchase() {
 ============================================ */
 function checkAdminAccess() {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('admin') === 'true' || window.location.hash === '#admin') {
+    const hash = window.location.hash;
+    
+    if (urlParams.get('admin') === 'true' || hash === '#admin') {
         document.getElementById('adminPanel').classList.remove('hidden');
     }
 }
 
+// Escuchar cambios en el hash
+window.addEventListener('hashchange', () => {
+    if (window.location.hash === '#admin') {
+        document.getElementById('adminPanel').classList.remove('hidden');
+    }
+});
+
 function toggleAdmin() {
-    document.getElementById('adminPanel').classList.toggle('hidden');
+    const panel = document.getElementById('adminPanel');
+    panel.classList.toggle('hidden');
+    
+    // Limpiar hash al cerrar
+    if (panel.classList.contains('hidden')) {
+        if (window.location.hash === '#admin') {
+            history.pushState("", document.title, window.location.pathname + window.location.search);
+        }
+    }
+}
+
+// Cambiar entre tabs del admin
+function switchAdminTab(tabName) {
+    // Ocultar todos los contenidos
+    document.getElementById('contentSearch').classList.add('hidden');
+    document.getElementById('contentNumbers').classList.add('hidden');
+    document.getElementById('contentDatabase').classList.add('hidden');
+    document.getElementById('contentPayment').classList.add('hidden');
+    
+    // Resetear estilos de botones
+    document.getElementById('tabSearch').classList.remove('bg-blue-600');
+    document.getElementById('tabNumbers').classList.remove('bg-blue-600');
+    document.getElementById('tabDatabase').classList.remove('bg-blue-600');
+    document.getElementById('tabPayment').classList.remove('bg-blue-600');
+    
+    document.getElementById('tabSearch').classList.add('bg-white/20');
+    document.getElementById('tabNumbers').classList.add('bg-white/20');
+    document.getElementById('tabDatabase').classList.add('bg-white/20');
+    document.getElementById('tabPayment').classList.add('bg-white/20');
+    
+    // Mostrar el contenido seleccionado
+    document.getElementById('content' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.remove('hidden');
+    document.getElementById('tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.remove('bg-white/20');
+    document.getElementById('tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.add('bg-blue-600');
+    
+    // Cargar datos según la tab
+    if (tabName === 'numbers') {
+        loadNumbersManagement();
+    } else if (tabName === 'database') {
+        loadDatabaseTable();
+    } else if (tabName === 'payment') {
+        loadRecentPayments();
+    }
 }
 
 function loginAdmin() {
@@ -680,87 +834,416 @@ function loginAdmin() {
         isAdminLoggedIn = true;
         document.getElementById('adminLogin').classList.add('hidden');
         document.getElementById('adminContent').classList.remove('hidden');
-        loadAllTickets();
+        switchAdminTab('search'); // Mostrar primera pestaña
     } else {
         alert('❌ Contraseña incorrecta');
     }
 }
 
-async function loadAllTickets() {
+// ============ GESTIÓN DE NÚMEROS ============
+async function loadNumbersManagement() {
     const snapshot = await get(ref(db, 'tickets'));
     const data = snapshot.val() || {};
     const tickets = Object.values(data);
     
-    const list = document.getElementById('allTicketsList');
-    if (tickets.length === 0) {
-        list.innerHTML = '<p class="text-gray-400">No hay boletas</p>';
+    // Reconstruir lista de números asignados
+    const assignedNums = new Set();
+    tickets.forEach(t => {
+        if (t.numerosAsignados) {
+            t.numerosAsignados.forEach(num => assignedNums.add(num));
+        }
+    });
+    
+    // Números disponibles = todos - asignados
+    const allNumbers = [];
+    for (let i = 0; i <= 999; i++) {
+        allNumbers.push(String(i).padStart(3, '0'));
+    }
+    
+    const available = allNumbers.filter(n => !assignedNums.has(n));
+    
+    document.getElementById('availableCount').textContent = available.length;
+    document.getElementById('assignedCount').textContent = assignedNums.size;
+    
+    // Actualizar availableNumbers global
+    availableNumbers = [...available];
+}
+
+function searchSpecificNumber() {
+    const searchNum = document.getElementById('searchNumber').value.trim().padStart(3, '0');
+    
+    if (searchNum.length !== 3 || isNaN(searchNum)) {
+        alert('❌ Ingresa un número válido (0-999)');
         return;
     }
     
-    list.innerHTML = tickets.map(t => {
-        const pending = TICKET_PRICE - t.amountPaid;
-        const percent = Math.round((t.amountPaid / TICKET_PRICE) * 100);
+    get(ref(db, 'tickets')).then(snapshot => {
+        const data = snapshot.val() || {};
+        const tickets = Object.values(data);
+        
+        const found = tickets.filter(t => 
+            t.numerosAsignados && t.numerosAsignados.includes(searchNum)
+        );
+        
+        const resultDiv = document.getElementById('numbersResult');
+        
+        if (found.length === 0) {
+            resultDiv.innerHTML = `
+                <div class="bg-green-600/30 border border-green-500 rounded-lg p-4">
+                    <p class="font-bold text-xl">✅ Número ${searchNum} está DISPONIBLE</p>
+                    <p class="text-sm mt-2">Este número no ha sido asignado a ninguna boleta</p>
+                </div>
+            `;
+        } else {
+            resultDiv.innerHTML = `
+                <div class="bg-red-600/30 border border-red-500 rounded-lg p-4">
+                    <p class="font-bold text-xl mb-3">❌ Número ${searchNum} está ASIGNADO</p>
+                    ${found.map(t => `
+                        <div class="bg-black/30 rounded p-3 mb-2">
+                            <p class="font-bold">Boleta #${t.ticketNumber}</p>
+                            <p class="text-sm">🔢 Números: ${t.numerosAsignados.join(' y ')}</p>
+                            <p class="text-sm">👤 ${t.nombre}</p>
+                            <p class="text-sm">📧 ${t.correo}</p>
+                            <p class="text-sm">📱 ${t.telefono}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+    });
+}
+
+function showAllNumbers(type) {
+    get(ref(db, 'tickets')).then(snapshot => {
+        const data = snapshot.val() || {};
+        const tickets = Object.values(data);
+        
+        const assignedNums = new Set();
+        const assignedDetails = {};
+        
+        tickets.forEach(t => {
+            if (t.numerosAsignados) {
+                t.numerosAsignados.forEach(num => {
+                    assignedNums.add(num);
+                    if (!assignedDetails[num]) assignedDetails[num] = [];
+                    assignedDetails[num].push(t);
+                });
+            }
+        });
+        
+        const allNumbers = [];
+        for (let i = 0; i <= 999; i++) {
+            allNumbers.push(String(i).padStart(3, '0'));
+        }
+        
+        const resultDiv = document.getElementById('numbersResult');
+        
+        if (type === 'available') {
+            const available = allNumbers.filter(n => !assignedNums.has(n));
+            
+            resultDiv.innerHTML = `
+                <div class="bg-green-900/30 border border-green-500 rounded-lg p-4">
+                    <h4 class="font-bold text-xl mb-3">✅ Números Disponibles (${available.length})</h4>
+                    <div class="grid grid-cols-10 gap-2 max-h-96 overflow-y-auto">
+                        ${available.map(n => `
+                            <div class="bg-green-600/50 rounded px-2 py-1 text-center text-sm font-mono">
+                                ${n}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        } else {
+            const assigned = Array.from(assignedNums).sort();
+            
+            resultDiv.innerHTML = `
+                <div class="bg-red-900/30 border border-red-500 rounded-lg p-4">
+                    <h4 class="font-bold text-xl mb-3">❌ Números Asignados (${assigned.length})</h4>
+                    <div class="space-y-2 max-h-96 overflow-y-auto">
+                        ${assigned.map(n => {
+                            const tickets = assignedDetails[n];
+                            return `
+                                <div class="bg-black/30 rounded p-2 text-sm">
+                                    <span class="font-bold font-mono text-red-400">${n}</span> → 
+                                    ${tickets.map(t => `Boleta #${t.ticketNumber} (${t.nombre})`).join(', ')}
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+    });
+}
+
+// ============ BASE DE DATOS ============
+async function loadDatabaseTable() {
+    const snapshot = await get(ref(db, 'tickets'));
+    const data = snapshot.val() || {};
+    const tickets = Object.values(data).sort((a, b) => a.ticketNumber - b.ticketNumber);
+    
+    const totalTickets = tickets.length;
+    const paidTickets = tickets.filter(t => t.estadoPago === 'pagado').length;
+    const partialTickets = tickets.filter(t => t.estadoPago === 'abonado').length;
+    
+    document.getElementById('dbTotalTickets').textContent = totalTickets;
+    document.getElementById('dbPaidTickets').textContent = paidTickets;
+    document.getElementById('dbPartialTickets').textContent = partialTickets;
+    
+    renderDatabaseTable(tickets);
+}
+
+function renderDatabaseTable(tickets) {
+    const tbody = document.getElementById('databaseTableBody');
+    
+    if (tickets.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-gray-400">No hay boletas registradas</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = tickets.map(t => {
         const eligibleWeeks = Object.keys(t.eligible || {}).filter(w => t.eligible[w]);
+        const pending = TICKET_PRICE - t.amountPaid;
         
         return `
-            <div class="bg-gray-800 rounded-lg p-4 border ${t.estadoPago === 'pagado' ? 'border-green-500' : 'border-yellow-500'}">
-                <div class="flex justify-between items-start mb-3">
-                    <div>
-                        <p class="font-bold text-lg">Boleta #${t.ticketNumber}</p>
-                        <p class="text-sm text-gray-300">🔢 ${t.numerosAsignados[0]} y ${t.numerosAsignados[1]}</p>
-                        <p class="text-xs text-gray-400">🔄 Inv: ${getInvertedNumber(t.numerosAsignados[0])} y ${getInvertedNumber(t.numerosAsignados[1])}</p>
+            <tr class="hover:bg-white/5">
+                <td class="px-3 py-3 font-mono font-bold">#${t.ticketNumber}</td>
+                <td class="px-3 py-3">
+                    <div class="font-mono text-sm">
+                        ${t.numerosAsignados ? t.numerosAsignados.join(', ') : 'N/A'}
                     </div>
-                    <span class="px-3 py-1 rounded text-xs font-bold ${t.estadoPago === 'pagado' ? 'bg-green-500' : 'bg-yellow-500'}">
+                    <div class="text-xs text-gray-400">
+                        Inv: ${t.numerosAsignados ? t.numerosAsignados.map(n => getInvertedNumber(n)).join(', ') : 'N/A'}
+                    </div>
+                </td>
+                <td class="px-3 py-3">
+                    <div class="font-semibold">${t.nombre}</div>
+                    <div class="text-xs text-gray-400">${t.direccion || 'N/A'}</div>
+                </td>
+                <td class="px-3 py-3">
+                    <div class="text-sm">📧 ${t.correo}</div>
+                    <div class="text-sm">📱 ${t.telefono}</div>
+                </td>
+                <td class="px-3 py-3">
+                    <div class="font-bold text-green-400">${t.amountPaid.toLocaleString('es-CO')}</div>
+                    <div class="text-xs text-red-400">-${pending.toLocaleString('es-CO')}</div>
+                </td>
+                <td class="px-3 py-3">
+                    <span class="px-2 py-1 rounded text-xs font-bold ${t.estadoPago === 'pagado' ? 'bg-green-600' : 'bg-yellow-600'}">
                         ${t.estadoPago.toUpperCase()}
                     </span>
-                </div>
-                
-                <div class="bg-black/30 rounded p-3 mb-3 text-sm">
-                    <div class="flex justify-between mb-1">
-                        <span>Pagado:</span>
-                        <span class="font-bold text-green-400">${t.amountPaid.toLocaleString('es-CO')}</span>
-                    </div>
-                    <div class="flex justify-between mb-2">
-                        <span>Pendiente:</span>
-                        <span class="font-bold text-red-400">${pending.toLocaleString('es-CO')}</span>
-                    </div>
-                    <div class="w-full bg-gray-700 rounded-full h-2">
-                        <div class="bg-green-500 h-2 rounded-full transition-all" style="width: ${percent}%"></div>
-                    </div>
-                    <p class="text-xs text-center mt-1">${percent}% pagado</p>
-                </div>
-                
-                <div class="text-sm space-y-1 mb-3">
-                    <p>👤 ${t.nombre}</p>
-                    <p>📧 ${t.correo}</p>
-                    <p>📱 ${t.telefono}</p>
-                    <p>📍 ${t.direccion}</p>
-                    <p>💳 ${t.metodoPago}</p>
-                    <p>🕐 ${new Date(t.reservedAt).toLocaleString('es-CO')}</p>
-                </div>
-                
-                <div class="bg-blue-900/30 rounded p-2 mb-3 text-xs">
-                    <p class="font-bold mb-1">✅ Elegible para:</p>
+                </td>
+                <td class="px-3 py-3">
                     ${eligibleWeeks.length > 0 
-                        ? eligibleWeeks.map(w => `<span class="inline-block bg-green-600 px-2 py-1 rounded mr-1 mb-1">${w}</span>`).join('')
-                        : '<span class="text-gray-400">Ningúna bendicion aún</span>'
+                        ? eligibleWeeks.map(w => `<span class="inline-block bg-blue-600 px-2 py-1 rounded text-xs mr-1 mb-1">${w}</span>`).join('')
+                        : '<span class="text-xs text-gray-400">Ninguna</span>'
                     }
-                </div>
-                
-                <div class="flex gap-2 flex-wrap">
-                    <button onclick="registerManualPaymentFor(${t.ticketNumber})" class="flex-1 bg-blue-600 hover:bg-blue-500 py-2 px-3 rounded text-sm font-semibold">
-                        💰 Abonar
-                    </button>
-                    <button onclick="sendEligibilityEmail('${t.correo}', ${t.ticketNumber})" class="flex-1 bg-purple-600 hover:bg-purple-500 py-2 px-3 rounded text-sm font-semibold">
-                        📧 Email
-                    </button>
-                    <button onclick="deleteTicket(${t.ticketNumber})" class="bg-red-600 hover:bg-red-500 py-2 px-3 rounded text-sm font-semibold">
-                        🗑️
-                    </button>
+                </td>
+                <td class="px-3 py-3">
+                    <div class="flex gap-1">
+                        <button onclick="viewTicketDetails(${t.ticketNumber})" class="bg-blue-600 hover:bg-blue-500 px-2 py-1 rounded text-xs" title="Ver detalles">
+                            👁️
+                        </button>
+                        <button onclick="registerManualPaymentFor(${t.ticketNumber})" class="bg-green-600 hover:bg-green-500 px-2 py-1 rounded text-xs" title="Abonar">
+                            💰
+                        </button>
+                        <button onclick="sendEligibilityEmail('${t.correo}', ${t.ticketNumber})" class="bg-purple-600 hover:bg-purple-500 px-2 py-1 rounded text-xs" title="Email">
+                            📧
+                        </button>
+                        <button onclick="deleteTicket(${t.ticketNumber})" class="bg-red-600 hover:bg-red-500 px-2 py-1 rounded text-xs" title="Eliminar">
+                            🗑️
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function filterDatabase() {
+    const searchTerm = document.getElementById('searchDatabase').value.toLowerCase().trim();
+    const statusFilter = document.getElementById('filterStatus').value;
+    
+    get(ref(db, 'tickets')).then(snapshot => {
+        const data = snapshot.val() || {};
+        let tickets = Object.values(data);
+        
+        // Filtrar por búsqueda
+        if (searchTerm) {
+            tickets = tickets.filter(t => 
+                t.nombre.toLowerCase().includes(searchTerm) ||
+                t.correo.toLowerCase().includes(searchTerm) ||
+                t.telefono.includes(searchTerm) ||
+                (t.direccion && t.direccion.toLowerCase().includes(searchTerm))
+            );
+        }
+        
+        // Filtrar por estado
+        if (statusFilter !== 'all') {
+            tickets = tickets.filter(t => t.estadoPago === statusFilter);
+        }
+        
+        tickets.sort((a, b) => a.ticketNumber - b.ticketNumber);
+        renderDatabaseTable(tickets);
+    });
+}
+
+function viewTicketDetails(ticketNumber) {
+    get(ref(db, `tickets/ticket_${ticketNumber}`)).then(snapshot => {
+        if (!snapshot.exists()) return;
+        
+        const t = snapshot.val();
+        const pending = TICKET_PRICE - t.amountPaid;
+        const eligibleWeeks = Object.keys(t.eligible || {}).filter(w => t.eligible[w]);
+        
+        const detailsHTML = `
+            <div class="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-[60]" onclick="this.remove()">
+                <div class="bg-gradient-to-br from-purple-900 to-blue-900 rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-2xl font-bold">Boleta #${t.ticketNumber}</h3>
+                        <button onclick="this.closest('[onclick]').remove()" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm">✕</button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-black/30 rounded-lg p-4">
+                            <h4 class="font-bold mb-2">🔢 Números Asignados</h4>
+                            <p class="text-2xl font-mono font-bold text-yellow-400">${t.numerosAsignados.join(' - ')}</p>
+                            <p class="text-sm text-gray-300 mt-1">Invertidos: ${t.numerosAsignados.map(n => getInvertedNumber(n)).join(' - ')}</p>
+                        </div>
+                        
+                        <div class="bg-black/30 rounded-lg p-4">
+                            <h4 class="font-bold mb-2">👤 Información Personal</h4>
+                            <p><strong>Nombre:</strong> ${t.nombre}</p>
+                            <p><strong>Correo:</strong> ${t.correo}</p>
+                            <p><strong>Teléfono:</strong> ${t.telefono}</p>
+                            <p><strong>Dirección:</strong> ${t.direccion || 'N/A'}</p>
+                        </div>
+                        
+                        <div class="bg-black/30 rounded-lg p-4">
+                            <h4 class="font-bold mb-2">💰 Estado de Pago</h4>
+                            <div class="flex justify-between mb-2">
+                                <span>Pagado:</span>
+                                <span class="font-bold text-green-400">${t.amountPaid.toLocaleString('es-CO')}</span>
+                            </div>
+                            <div class="flex justify-between mb-2">
+                                <span>Pendiente:</span>
+                                <span class="font-bold text-red-400">${pending.toLocaleString('es-CO')}</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-3 mt-2">
+                                <div class="bg-green-500 h-3 rounded-full" style="width: ${(t.amountPaid/TICKET_PRICE)*100}%"></div>
+                            </div>
+                            <p class="text-center text-sm mt-1">${Math.round((t.amountPaid/TICKET_PRICE)*100)}% completado</p>
+                            <p class="mt-2"><strong>Método:</strong> ${t.metodoPago}</p>
+                            <p><strong>Estado:</strong> <span class="px-2 py-1 rounded text-xs ${t.estadoPago === 'pagado' ? 'bg-green-600' : 'bg-yellow-600'}">${t.estadoPago.toUpperCase()}</span></p>
+                        </div>
+                        
+                        <div class="bg-black/30 rounded-lg p-4">
+                            <h4 class="font-bold mb-2">✅ Elegibilidad Semanal</h4>
+                            ${eligibleWeeks.length > 0 
+                                ? eligibleWeeks.map(w => `<span class="inline-block bg-blue-600 px-3 py-1 rounded mr-2 mb-2">${w}</span>`).join('')
+                                : '<span class="text-gray-400">No elegible para ninguna semana aún</span>'
+                            }
+                        </div>
+                        
+                        <div class="bg-black/30 rounded-lg p-4">
+                            <h4 class="font-bold mb-2">📅 Historial de Pagos</h4>
+                            <div class="space-y-2 max-h-40 overflow-y-auto">
+                                ${(t.payments || []).map(p => `
+                                    <div class="flex justify-between text-sm">
+                                        <span>${new Date(p.date).toLocaleString('es-CO')}</span>
+                                        <span class="font-bold text-green-400">${p.amount.toLocaleString('es-CO')}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="bg-black/30 rounded-lg p-4">
+                            <h4 class="font-bold mb-2">🕐 Fechas</h4>
+                            <p class="text-sm"><strong>Reservado:</strong> ${new Date(t.reservedAt).toLocaleString('es-CO')}</p>
+                            <p class="text-sm"><strong>Último pago:</strong> ${new Date(t.lastPaymentAt).toLocaleString('es-CO')}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
-    }).join('');
+        
+        document.body.insertAdjacentHTML('beforeend', detailsHTML);
+    });
+}
+
+function exportToCSV() {
+    get(ref(db, 'tickets')).then(snapshot => {
+        const data = snapshot.val() || {};
+        const tickets = Object.values(data).sort((a, b) => a.ticketNumber - b.ticketNumber);
+        
+        if (tickets.length === 0) {
+            alert('No hay datos para exportar');
+            return;
+        }
+        
+        // Crear CSV
+        let csv = 'Boleta,Números,Números Invertidos,Nombre,Correo,Teléfono,Dirección,Pagado,Pendiente,Estado,Método Pago,Elegible,Fecha Reserva\n';
+        
+        tickets.forEach(t => {
+            const pending = TICKET_PRICE - t.amountPaid;
+            const eligibleWeeks = Object.keys(t.eligible || {}).filter(w => t.eligible[w]).join('; ');
+            const nums = t.numerosAsignados ? t.numerosAsignados.join(' - ') : '';
+            const invNums = t.numerosAsignados ? t.numerosAsignados.map(n => getInvertedNumber(n)).join(' - ') : '';
+            
+            csv += `${t.ticketNumber},"${nums}","${invNums}","${t.nombre}","${t.correo}","${t.telefono}","${t.direccion || ''}",${t.amountPaid},${pending},"${t.estadoPago}","${t.metodoPago}","${eligibleWeeks}","${new Date(t.reservedAt).toLocaleString('es-CO')}"\n`;
+        });
+        
+        // Descargar
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `boletas_${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+    });
+}
+
+// ============ PAGOS ============
+async function loadRecentPayments() {
+    const snapshot = await get(ref(db, 'tickets'));
+    const data = snapshot.val() || {};
+    const tickets = Object.values(data);
+    
+    // Recolectar todos los pagos con info de boleta
+    const allPayments = [];
+    tickets.forEach(t => {
+        if (t.payments) {
+            t.payments.forEach(p => {
+                allPayments.push({
+                    ...p,
+                    ticketNumber: t.ticketNumber,
+                    nombre: t.nombre
+                });
+            });
+        }
+    });
+    
+    // Ordenar por fecha (más reciente primero)
+    allPayments.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    const recentDiv = document.getElementById('recentPayments');
+    
+    if (allPayments.length === 0) {
+        recentDiv.innerHTML = '<p class="text-gray-400 text-sm">No hay pagos registrados</p>';
+        return;
+    }
+    
+    // Mostrar últimos 20
+    recentDiv.innerHTML = allPayments.slice(0, 20).map(p => `
+        <div class="bg-white/5 rounded p-3 flex justify-between items-center">
+            <div>
+                <p class="font-bold">Boleta #${p.ticketNumber} - ${p.nombre}</p>
+                <p class="text-xs text-gray-400">${new Date(p.date).toLocaleString('es-CO')}</p>
+            </div>
+            <div class="font-bold text-green-400">
+                ${p.amount.toLocaleString('es-CO')}
+            </div>
+        </div>
+    `).join('');
 }
 
 // Registrar abono manual desde el formulario general
@@ -778,6 +1261,9 @@ async function registerManualPayment() {
     // Limpiar
     document.getElementById('manualTicketNum').value = '';
     document.getElementById('manualAmount').value = '';
+    
+    // Recargar historial
+    loadRecentPayments();
 }
 
 // Registrar pago para una boleta específica
@@ -849,7 +1335,10 @@ async function registerPaymentForTicket(ticketNumber, amount) {
             });
         }
         
-        loadAllTickets();
+        // Recargar tabla si estamos en esa pestaña
+        if (!document.getElementById('contentDatabase').classList.contains('hidden')) {
+            loadDatabaseTable();
+        }
         
     } catch (error) {
         console.error('Error:', error);
@@ -867,7 +1356,7 @@ async function findWinner() {
     const tickets = Object.values(data);
     
     const winners = tickets.filter(t => 
-        t.numerosAsignados.includes(number) || t.numerosAsignados.includes(inverted)
+        t.numerosAsignados && (t.numerosAsignados.includes(number) || t.numerosAsignados.includes(inverted))
     );
     
     const resultDiv = document.getElementById('winnerResult');
@@ -938,19 +1427,26 @@ async function deleteTicket(ticketNumber) {
         if (snapshot.exists()) {
             const ticket = snapshot.val();
             // Devolver números al pool
-            ticket.numerosAsignados.forEach(num => {
-                if (!availableNumbers.includes(num)) {
-                    availableNumbers.push(num);
-                }
-            });
+            if (ticket.numerosAsignados) {
+                ticket.numerosAsignados.forEach(num => {
+                    if (!availableNumbers.includes(num)) {
+                        availableNumbers.push(num);
+                    }
+                });
+            }
             
             await set(ticketRef, null);
             alert('✅ Boleta eliminada');
-            loadAllTickets();
+            loadDatabaseTable();
         }
     } catch (error) {
         alert('❌ Error: ' + error.message);
     }
+}
+
+// Mantener función loadAllTickets por compatibilidad
+async function loadAllTickets() {
+    await loadDatabaseTable();
 }
 
 /* ============================================
@@ -973,6 +1469,15 @@ window.closeTerms = closeTerms;
 window.checkAdminAccess = checkAdminAccess;
 window.toggleAdmin = toggleAdmin;
 window.loginAdmin = loginAdmin;
+window.switchAdminTab = switchAdminTab;
+window.loadNumbersManagement = loadNumbersManagement;
+window.searchSpecificNumber = searchSpecificNumber;
+window.showAllNumbers = showAllNumbers;
+window.loadDatabaseTable = loadDatabaseTable;
+window.filterDatabase = filterDatabase;
+window.viewTicketDetails = viewTicketDetails;
+window.exportToCSV = exportToCSV;
+window.loadRecentPayments = loadRecentPayments;
 window.loadAllTickets = loadAllTickets;
 window.registerManualPayment = registerManualPayment;
 window.registerManualPaymentFor = registerManualPaymentFor;
