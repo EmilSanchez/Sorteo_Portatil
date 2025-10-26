@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bendiciones Universitaria - Sistema Completo</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <!-- EmailJS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
@@ -28,16 +28,16 @@
     <div class="bg-black/30 backdrop-blur-md shadow-xl">
         <div class="max-w-7xl mx-auto px-4 py-6">
             <div class="text-center">
-                <h1 class="text-3xl sm:text-4xl font-bold mb-2">Bendiciones con el fin de reunir Fondos Universitarios</h1>
+                <h1 class="text-3xl sm:text-4xl font-bold mb-2"></h1>
                 <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto items-start">
                     <div class="col-span-2 flex flex-col md:flex-row gap-4 items-stretch">
                         <div class="flex-1 bg-yellow-400/10 border border-yellow-400 rounded-lg p-6 sm:p-8 text-center flex flex-col justify-center items-center min-h-[220px]">
-                            <h2 class="text-2xl sm:text-3xl font-bold text-yellow-400 mb-2">PREMIO MAYOR</h2>
-                            <p class="text-sm text-gray-200 mb-3">El ganador podrá elegir UNA de las siguientes opciones:</p>
-                            <p class="text-sm sm:text-base font-semibold text-white">• ASUS TUF Gaming (Ryzen 7 / RTX 3050 / 16GB DDR5 / 500GB M.2)</p>
-                            <p class="text-xl sm:text-2xl font-bold text-green-400 my-2">• EN EFECTIVO O TRANSFERENCIA $3.500.000 COP</p>
+                            <h2 class="text-2xl sm:text-3xl font-bold text-yellow-400 mb-2">BENDICIÓN MAYOR</h2>
+                            <p class="text-sm text-gray-200 mb-3">El bendecido podrá elegir UNA de las siguientes opciones:</p>
+                            <p class="text-x1 sm:text-2xl font-semibold text-white">• LAPTOP GAMER ASUS TUF GAMING (Ryzen 7 / RTX 3050 / 16GB DDR5 / 500GB M.2)</p>
+                            <p class="text-xl sm:text-2xl font-bold text-green-400 my-2">• EN EFECTIVO O TRANSFERENCIA $ 3.000.000 COP</p>
                             <p class="text-sm text-gray-300 mt-3">Para el que tenga el número ganador invertido, premio adicional:</p>
-                            <p class="text-lg sm:text-xl font-bold text-indigo-300 mt-2">$750.000</p>
+                            <p class="text-lg sm:text-xl font-bold text-indigo-300 mt-2">$700.000</p>
                         </div>
 
                         <div class="flex-1 flex items-center justify-center">
@@ -167,7 +167,7 @@
                     </div>
                     <div class="bg-white/10 rounded-lg p-4">
                         <p class="text-sm text-gray-300">Boletas vendidas</p>
-                        <p class="text-2xl font-bold"><span id="soldPercentage">0</span>%</p>
+                        <p class="text-2xl font-bold"><span id="soldPercentage">0%</span></p>
                     </div>
                     <div class="bg-white/10 rounded-lg p-4">
                         <p class="text-sm text-gray-300">Próximo sorteo</p>
@@ -238,12 +238,12 @@
 
                 <div>
                     <label class="block text-sm font-semibold mb-2">Método de pago *</label>
-                    <select id="inputPayment" required class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
-                        <option value="">Seleccionar...</option>
-                        <option value="Nequi">Nequi</option>
-                        <option value="Llaves">Llaves</option>
-                        <option value="Efectivo">Efectivo</option>
-                        <option value="Otro">Otro</option>
+                    <select id="inputPayment" required class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-black" style="color: rgb(255, 255, 255);">
+                        <option value="" class="text-black" style="color: rgb(0, 0, 0);">Seleccionar...</option>
+                        <option value="Nequi" class="text-black" style="color: black;">Nequi</option>
+                        <option value="Llaves" class="text-black" style="color: black;">Llaves</option>
+                        <option value="Efectivo" class="text-black" style="color: black;">Efectivo</option>
+                        <option value="Otro" class="text-black" style="color: black;">Otro</option>
                     </select>
                 </div>
 
@@ -285,7 +285,10 @@
                 <p class="text-sm mt-2">💰 Pagado: $<span id="successAmount"></span></p>
                 <p class="text-sm">⏳ Pendiente: $<span id="successPending"></span></p>
             </div>
-            <p class="text-sm">Envía tu comprobante al WhatsApp para confirmar</p>
+            <p class="text-sm mb-4">📱 Se abrirá WhatsApp para enviar tu comprobante</p>
+            <button id="whatsappBtn" onclick="openWhatsAppManual()" class="w-full bg-green-800 hover:bg-green-700 py-3 rounded-lg font-semibold mb-2">
+                💬 Abrir WhatsApp Ahora
+            </button>
         </div>
     </div>
 
@@ -437,6 +440,13 @@
                         <table class="w-full text-sm" id="databaseTable">
                             <thead class="bg-black/50">
                                 <tr>
+                                    <th class="px-3 py-2 text-left">#</th>
+                                    <th class="px-3 py-2 text-left">Números</th>
+                                    <th class="px-3 py-2 text-left">Nombre</th>
+                                    <th class="px-3 py-2 text-left">Contacto</th>
+                                    <th class="px-3 py-2 text-left">Pago</th>
+                                    <th class="px-3 py-2 text-left">Estado</th>
+                                    <th class="px-3 py-2 text-left">Elegible</th>
                                     <th class="px-3 py-2 text-left">Acciones</th>
                                 </tr>
                             </thead>
@@ -469,12 +479,12 @@
         <p class="mt-2">WhatsApp: <span id="footerWhatsapp">+57 315 137 1553</span></p>
     </div>
 
-    <script type="module">
+<script type="module">
 /* ============================================
    CONFIGURACIÓN - CAMBIAR ESTOS VALORES
 ============================================ */
 
-// 🔥 FIREBASE CONFIG (pega tu configuración aquí)
+// 🔥 FIREBASE CONFIG
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getDatabase, ref, set, onValue, get, push, update } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
@@ -488,11 +498,11 @@ const firebaseConfig = {
     appId: "1:173786953583:web:7275693fc0948a65b35a9a"
 };
 
-// 📧 EMAILJS CONFIG (regístrate en emailjs.com y pega tus keys)
+// 📧 EMAILJS CONFIG
 const EMAILJS_CONFIG = {
-    serviceId: 'TU_SERVICE_ID',      // ⚠️ CAMBIAR
-    templateId: 'TU_TEMPLATE_ID',    // ⚠️ CAMBIAR
-    publicKey: 'TU_PUBLIC_KEY'       // ⚠️ CAMBIAR
+    serviceId: 'service_rmmvmgl',      
+    templateId: 'template_i7n2zrg',    
+    publicKey: 'RnZvnfPFR7wtF3oM9'       
 };
 
 // 💰 CONFIGURACIÓN DE PRECIOS Y ELEGIBILIDAD
@@ -506,7 +516,7 @@ const eligibilityThresholds = {
     week5: 10000
 };
 
-// 📅 FECHAS DE SORTEOS (cutoff = fecha límite para ser elegible)
+// 📅 FECHAS DE SORTEOS
 const weeklyCutoffs = {
     week1: new Date('2025-11-07T23:59:59'),
     week2: new Date('2025-11-14T23:59:59'),
@@ -519,6 +529,12 @@ const FINAL_DRAW_DATE = new Date('2025-12-06T20:00:00');
 const WHATSAPP_NUMBER = '573151371553';
 const ADMIN_PASSWORD = '210621#';
 const TOTAL_TICKETS = 500;
+const DEBUG = true; // Cambiar a false en producción
+
+/* ============================================
+   ✅ CORRECCIÓN 1: Variable global para WhatsApp
+============================================ */
+let lastPurchaseData = null;
 
 /* ============================================
    INICIALIZACIÓN
@@ -544,6 +560,23 @@ function initializeNumberPool() {
 }
 
 initializeNumberPool();
+
+/* ============================================
+   ✅ CORRECCIÓN 2: Sistema de logs mejorado
+============================================ */
+function log(type, message, data = null) {
+    if (!DEBUG) return;
+    
+    const timestamp = new Date().toLocaleTimeString('es-CO');
+    const emoji = {
+        success: '✅',
+        error: '❌',
+        warning: '⚠️',
+        info: 'ℹ️'
+    }[type] || '📝';
+    
+    console.log(`${emoji} [${timestamp}] ${message}`, data || '');
+}
 
 /* ============================================
    FUNCIONES AUXILIARES
@@ -573,7 +606,6 @@ function calculateEligibility(amountPaid, paymentDate) {
         const threshold = eligibilityThresholds[week];
         const cutoff = weeklyCutoffs[week];
         
-        // Es elegible si: pagó suficiente Y el pago fue antes del cutoff
         eligible[week] = (amountPaid >= threshold) && (pDate <= cutoff);
     });
     
@@ -585,17 +617,46 @@ function getInvertedNumber(num) {
     return num.split('').reverse().join('');
 }
 
-// Enviar correo con EmailJS
+/* ============================================
+   ✅ CORRECCIÓN 3: Validación robusta de emails
+============================================ */
 async function sendEmail(templateParams) {
     try {
-        await emailjs.send(
+        // Validar email del destinatario
+        const recipientEmail = templateParams.email || templateParams.to_email;
+        
+        if (!recipientEmail || recipientEmail.trim() === '') {
+            log('error', 'Email vacío', templateParams);
+            throw new Error('Email del destinatario está vacío');
+        }
+        
+        // Validar formato de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(recipientEmail)) {
+            throw new Error('Formato de email inválido: ' + recipientEmail);
+        }
+        
+        log('info', 'Enviando correo a:', recipientEmail);
+        
+        const response = await emailjs.send(
             EMAILJS_CONFIG.serviceId,
             EMAILJS_CONFIG.templateId,
-            templateParams
+            {
+                ...templateParams,
+                to_email: recipientEmail // Asegurar campo correcto
+            }
         );
-        console.log('✅ Correo enviado');
+        
+        log('success', 'Correo enviado', response);
+        return true;
+        
     } catch (error) {
-        console.error('❌ Error enviando correo:', error);
+        log('error', 'Error enviando correo', error);
+        
+        const errorMsg = error.text || error.message || 'Error desconocido';
+        alert(`⚠️ No se pudo enviar el correo: ${errorMsg}`);
+        
+        return false;
     }
 }
 
@@ -609,7 +670,7 @@ onValue(ref(db, 'tickets'), (snapshot) => {
     const sold = tickets.filter(t => t.estadoPago === 'pagado' || t.amountPaid >= TICKET_PRICE).length;
     const percentage = Math.round((sold / TOTAL_TICKETS) * 100);
     
-    document.getElementById('soldPercentage').textContent = percentage;
+    document.getElementById('soldPercentage').textContent = percentage + '%';
 });
 
 // Actualizar contador próximo sorteo
@@ -617,7 +678,6 @@ function updateCountdown() {
     const now = new Date();
     let nextDraw = null;
     
-    // Buscar próximo sorteo
     Object.values(weeklyCutoffs).forEach(cutoff => {
         if (cutoff > now && (!nextDraw || cutoff < nextDraw)) {
             nextDraw = cutoff;
@@ -644,7 +704,6 @@ function updateCountdown() {
 setInterval(updateCountdown, 1000);
 updateCountdown();
 
-// Mostrar fecha de week1 cutoff en el form
 document.getElementById('week1Cutoff').textContent = weeklyCutoffs.week1.toLocaleDateString('es-CO');
 
 /* ============================================
@@ -658,6 +717,9 @@ function closePurchaseForm() {
     document.getElementById('purchaseModal').classList.add('hidden');
 }
 
+/* ============================================
+   ✅ CORRECCIÓN 4: submitPurchase con auto-WhatsApp
+============================================ */
 async function submitPurchase() {
     const name = document.getElementById('inputName').value.trim();
     const email = document.getElementById('inputEmail').value.trim();
@@ -666,6 +728,8 @@ async function submitPurchase() {
     const payment = document.getElementById('inputPayment').value;
     const amount = parseInt(document.getElementById('inputAmount').value);
     const terms = document.getElementById('inputTerms').checked;
+    
+    log('info', 'Iniciando compra', { name, email, amount });
     
     if (!name || !email || !phone || !address || !payment) {
         alert('❌ Completa todos los campos');
@@ -719,16 +783,32 @@ async function submitPurchase() {
         // Guardar en Firebase
         await set(ref(db, `tickets/ticket_${ticketNumber}`), ticketData);
         
-        // Mostrar éxito
-        document.getElementById('successTicketNum').textContent = ticketNumber;
-        document.getElementById('successAmount').textContent = amount.toLocaleString('es-CO');
-        document.getElementById('successPending').textContent = (TICKET_PRICE - amount).toLocaleString('es-CO');
-        document.getElementById('successModal').classList.remove('hidden');
+        log('success', 'Compra exitosa', { ticketNumber });
         
-        // Enviar correo
+        // ✅ NUEVO: Guardar datos para WhatsApp
         const eligibleWeeks = Object.keys(eligible).filter(w => eligible[w]).join(', ') || 'Ninguna aún';
         const pending = TICKET_PRICE - amount;
         
+        lastPurchaseData = {
+            ticketNumber,
+            assignedNumbers,
+            name,
+            email,
+            phone,
+            address,
+            amount,
+            pending,
+            payment,
+            eligibleWeeks
+        };
+        
+        // Mostrar modal éxito
+        document.getElementById('successTicketNum').textContent = ticketNumber;
+        document.getElementById('successAmount').textContent = amount.toLocaleString('es-CO');
+        document.getElementById('successPending').textContent = pending.toLocaleString('es-CO');
+        document.getElementById('successModal').classList.remove('hidden');
+        
+        // Enviar correo
         await sendEmail({
             to_email: email,
             to_name: name,
@@ -743,7 +823,14 @@ async function submitPurchase() {
             week1_cutoff: weeklyCutoffs.week1.toLocaleDateString('es-CO')
         });
         
-        // Cerrar modales
+        
+        // ✅ NUEVO: Auto-abrir WhatsApp después de 2 segundos
+        setTimeout(() => {
+            log('info', 'Abriendo WhatsApp automáticamente');
+            openWhatsAppManual();
+        }, 100000);
+        
+        // Cerrar modales después de 5 segundos
         setTimeout(() => {
             document.getElementById('successModal').classList.add('hidden');
             closePurchaseForm();
@@ -756,12 +843,51 @@ async function submitPurchase() {
             document.getElementById('inputPayment').value = '';
             document.getElementById('inputAmount').value = '10000';
             document.getElementById('inputTerms').checked = false;
-        }, 5000);
+        }, 1000000);
         
     } catch (error) {
-        console.error('Error:', error);
+        log('error', 'Error en compra', error);
         alert('❌ Error al procesar la compra: ' + error.message);
     }
+}
+
+/* ============================================
+   ✅ CORRECCIÓN 5: openWhatsAppManual arreglado
+============================================ */
+function openWhatsAppManual() {
+    if (!lastPurchaseData) {
+        log('warning', 'No hay datos de compra disponibles');
+        alert('❌ No hay datos de compra disponibles');
+        return;
+    }
+    
+    const { ticketNumber, assignedNumbers, name, email, phone, address, amount, pending, payment, eligibleWeeks } = lastPurchaseData;
+    
+    const whatsappMessage = `🎉 *NUEVA COMPRA - Bendición Universitaria*
+
+📋 *Boleta #${ticketNumber}*
+🔢 *Números:* ${assignedNumbers[0]} y ${assignedNumbers[1]}
+🔄 *Invertidos:* ${getInvertedNumber(assignedNumbers[0])} y ${getInvertedNumber(assignedNumbers[1])}
+
+👤 *Datos del comprador:*
+- Nombre: ${name}
+- Email: ${email}
+- Teléfono: ${phone}
+- Dirección: ${address}
+
+💰 *Información de pago:*
+- Monto pagado: ${amount.toLocaleString('es-CO')}
+- Pendiente: ${pending.toLocaleString('es-CO')}
+- Método: ${payment}
+
+✅ *Elegible para:* ${eligibleWeeks}
+
+_Por favor confirma el pago para activar la boleta._`;
+
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
+    
+    log('success', 'Abriendo WhatsApp', { ticketNumber });
+    window.open(whatsappUrl, '_blank');
 }
 
 /* ============================================
@@ -776,7 +902,6 @@ function checkAdminAccess() {
     }
 }
 
-// Escuchar cambios en el hash
 window.addEventListener('hashchange', () => {
     if (window.location.hash === '#admin') {
         document.getElementById('adminPanel').classList.remove('hidden');
@@ -787,7 +912,6 @@ function toggleAdmin() {
     const panel = document.getElementById('adminPanel');
     panel.classList.toggle('hidden');
     
-    // Limpiar hash al cerrar
     if (panel.classList.contains('hidden')) {
         if (window.location.hash === '#admin') {
             history.pushState("", document.title, window.location.pathname + window.location.search);
@@ -795,15 +919,12 @@ function toggleAdmin() {
     }
 }
 
-// Cambiar entre tabs del admin
 function switchAdminTab(tabName) {
-    // Ocultar todos los contenidos
     document.getElementById('contentSearch').classList.add('hidden');
     document.getElementById('contentNumbers').classList.add('hidden');
     document.getElementById('contentDatabase').classList.add('hidden');
     document.getElementById('contentPayment').classList.add('hidden');
     
-    // Resetear estilos de botones
     document.getElementById('tabSearch').classList.remove('bg-blue-600');
     document.getElementById('tabNumbers').classList.remove('bg-blue-600');
     document.getElementById('tabDatabase').classList.remove('bg-blue-600');
@@ -814,12 +935,10 @@ function switchAdminTab(tabName) {
     document.getElementById('tabDatabase').classList.add('bg-white/20');
     document.getElementById('tabPayment').classList.add('bg-white/20');
     
-    // Mostrar el contenido seleccionado
     document.getElementById('content' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.remove('hidden');
     document.getElementById('tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.remove('bg-white/20');
     document.getElementById('tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.add('bg-blue-600');
     
-    // Cargar datos según la tab
     if (tabName === 'numbers') {
         loadNumbersManagement();
     } else if (tabName === 'database') {
@@ -834,7 +953,7 @@ function loginAdmin() {
         isAdminLoggedIn = true;
         document.getElementById('adminLogin').classList.add('hidden');
         document.getElementById('adminContent').classList.remove('hidden');
-        switchAdminTab('search'); // Mostrar primera pestaña
+        switchAdminTab('search');
     } else {
         alert('❌ Contraseña incorrecta');
     }
@@ -846,7 +965,6 @@ async function loadNumbersManagement() {
     const data = snapshot.val() || {};
     const tickets = Object.values(data);
     
-    // Reconstruir lista de números asignados
     const assignedNums = new Set();
     tickets.forEach(t => {
         if (t.numerosAsignados) {
@@ -854,7 +972,6 @@ async function loadNumbersManagement() {
         }
     });
     
-    // Números disponibles = todos - asignados
     const allNumbers = [];
     for (let i = 0; i <= 999; i++) {
         allNumbers.push(String(i).padStart(3, '0'));
@@ -865,7 +982,6 @@ async function loadNumbersManagement() {
     document.getElementById('availableCount').textContent = available.length;
     document.getElementById('assignedCount').textContent = assignedNums.size;
     
-    // Actualizar availableNumbers global
     availableNumbers = [...available];
 }
 
@@ -993,6 +1109,9 @@ async function loadDatabaseTable() {
     renderDatabaseTable(tickets);
 }
 
+/* ============================================
+   ✅ CORRECCIÓN 6: Botón Confirmar Reserva agregado
+============================================ */
 function renderDatabaseTable(tickets) {
     const tbody = document.getElementById('databaseTableBody');
     
@@ -1040,10 +1159,15 @@ function renderDatabaseTable(tickets) {
                     }
                 </td>
                 <td class="px-3 py-3">
-                    <div class="flex gap-1">
+                    <div class="flex gap-1 flex-wrap">
                         <button onclick="viewTicketDetails(${t.ticketNumber})" class="bg-blue-600 hover:bg-blue-500 px-2 py-1 rounded text-xs" title="Ver detalles">
                             👁️
                         </button>
+                        ${t.estadoPago === 'abonado' ? `
+                            <button onclick="confirmReservation(${t.ticketNumber})" class="bg-yellow-600 hover:bg-yellow-500 px-2 py-1 rounded text-xs" title="Confirmar números">
+                                ✔️
+                            </button>
+                        ` : ''}
                         <button onclick="registerManualPaymentFor(${t.ticketNumber})" class="bg-green-600 hover:bg-green-500 px-2 py-1 rounded text-xs" title="Abonar">
                             💰
                         </button>
@@ -1060,6 +1184,64 @@ function renderDatabaseTable(tickets) {
     }).join('');
 }
 
+/* ============================================
+   ✅ CORRECCIÓN 7: Nueva función confirmReservation
+============================================ */
+async function confirmReservation(ticketNumber) {
+    try {
+        log('info', 'Confirmando reserva', { ticketNumber });
+        
+        const ticketRef = ref(db, `tickets/ticket_${ticketNumber}`);
+        const snapshot = await get(ticketRef);
+        
+        if (!snapshot.exists()) {
+            alert('❌ Boleta no encontrada');
+            return;
+        }
+        
+        const ticket = snapshot.val();
+        
+        if (!ticket.numerosAsignados || ticket.numerosAsignados.length === 0) {
+            alert('❌ Esta boleta no tiene números asignados');
+            return;
+        }
+        
+        // Confirmar con admin
+        if (!confirm(`¿Confirmar números ${ticket.numerosAsignados.join(' y ')} para ${ticket.nombre}?\n\nSe enviará un correo de confirmación.`)) {
+            return;
+        }
+        
+        // Enviar correo de confirmación
+        const eligibleWeeks = Object.keys(ticket.eligible || {})
+            .filter(w => ticket.eligible[w])
+            .join(', ') || 'Ninguna aún';
+        
+        const emailSent = await sendEmail({
+            to_email: ticket.correo,
+            to_name: ticket.nombre,
+            ticket_number: ticket.ticketNumber,
+            assigned_numbers: `${ticket.numerosAsignados[0]} y ${ticket.numerosAsignados[1]}`,
+            inverted1: getInvertedNumber(ticket.numerosAsignados[0]),
+            inverted2: getInvertedNumber(ticket.numerosAsignados[1]),
+            amount_paid: ticket.amountPaid.toLocaleString('es-CO'),
+            pending_amount: (TICKET_PRICE - ticket.amountPaid).toLocaleString('es-CO'),
+            eligible_weeks: eligibleWeeks,
+            message_type: 'confirmacion'
+        });
+        
+        if (emailSent) {
+            log('success', 'Reserva confirmada', { ticketNumber, email: ticket.correo });
+            alert(`✅ Números confirmados!\n\n📧 Correo enviado a: ${ticket.correo}\n🔢 Números: ${ticket.numerosAsignados.join(' y ')}`);
+        } else {
+            alert(`⚠️ Números confirmados pero hubo un problema al enviar el email.\n\nPor favor, verifica el correo manualmente: ${ticket.correo}`);
+        }
+        
+    } catch (error) {
+        log('error', 'Error al confirmar reserva', error);
+        alert('❌ Error al confirmar: ' + error.message);
+    }
+}
+
 function filterDatabase() {
     const searchTerm = document.getElementById('searchDatabase').value.toLowerCase().trim();
     const statusFilter = document.getElementById('filterStatus').value;
@@ -1068,7 +1250,6 @@ function filterDatabase() {
         const data = snapshot.val() || {};
         let tickets = Object.values(data);
         
-        // Filtrar por búsqueda
         if (searchTerm) {
             tickets = tickets.filter(t => 
                 t.nombre.toLowerCase().includes(searchTerm) ||
@@ -1078,7 +1259,6 @@ function filterDatabase() {
             );
         }
         
-        // Filtrar por estado
         if (statusFilter !== 'all') {
             tickets = tickets.filter(t => t.estadoPago === statusFilter);
         }
@@ -1181,7 +1361,6 @@ function exportToCSV() {
             return;
         }
         
-        // Crear CSV
         let csv = 'Boleta,Números,Números Invertidos,Nombre,Correo,Teléfono,Dirección,Pagado,Pendiente,Estado,Método Pago,Elegible,Fecha Reserva\n';
         
         tickets.forEach(t => {
@@ -1193,7 +1372,6 @@ function exportToCSV() {
             csv += `${t.ticketNumber},"${nums}","${invNums}","${t.nombre}","${t.correo}","${t.telefono}","${t.direccion || ''}",${t.amountPaid},${pending},"${t.estadoPago}","${t.metodoPago}","${eligibleWeeks}","${new Date(t.reservedAt).toLocaleString('es-CO')}"\n`;
         });
         
-        // Descargar
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
@@ -1208,7 +1386,6 @@ async function loadRecentPayments() {
     const data = snapshot.val() || {};
     const tickets = Object.values(data);
     
-    // Recolectar todos los pagos con info de boleta
     const allPayments = [];
     tickets.forEach(t => {
         if (t.payments) {
@@ -1222,7 +1399,6 @@ async function loadRecentPayments() {
         }
     });
     
-    // Ordenar por fecha (más reciente primero)
     allPayments.sort((a, b) => new Date(b.date) - new Date(a.date));
     
     const recentDiv = document.getElementById('recentPayments');
@@ -1232,7 +1408,6 @@ async function loadRecentPayments() {
         return;
     }
     
-    // Mostrar últimos 20
     recentDiv.innerHTML = allPayments.slice(0, 20).map(p => `
         <div class="bg-white/5 rounded p-3 flex justify-between items-center">
             <div>
@@ -1246,7 +1421,6 @@ async function loadRecentPayments() {
     `).join('');
 }
 
-// Registrar abono manual desde el formulario general
 async function registerManualPayment() {
     const ticketNum = parseInt(document.getElementById('manualTicketNum').value);
     const amount = parseInt(document.getElementById('manualAmount').value);
@@ -1258,15 +1432,12 @@ async function registerManualPayment() {
     
     await registerPaymentForTicket(ticketNum, amount);
     
-    // Limpiar
     document.getElementById('manualTicketNum').value = '';
     document.getElementById('manualAmount').value = '';
     
-    // Recargar historial
     loadRecentPayments();
 }
 
-// Registrar pago para una boleta específica
 async function registerManualPaymentFor(ticketNumber) {
     const amount = prompt(`Ingresa el monto del abono para la Boleta #${ticketNumber}:`, '5000');
     if (!amount) return;
@@ -1280,9 +1451,10 @@ async function registerManualPaymentFor(ticketNumber) {
     await registerPaymentForTicket(ticketNumber, parsedAmount);
 }
 
-// Lógica central de registro de pago
 async function registerPaymentForTicket(ticketNumber, amount) {
     try {
+        log('info', 'Registrando pago', { ticketNumber, amount });
+        
         const ticketRef = ref(db, `tickets/ticket_${ticketNumber}`);
         const snapshot = await get(ticketRef);
         
@@ -1296,15 +1468,12 @@ async function registerPaymentForTicket(ticketNumber, amount) {
         const newAmount = previousAmount + amount;
         const now = new Date().toISOString();
         
-        // Calcular nueva elegibilidad
         const newEligibility = calculateEligibility(newAmount, now);
         
-        // Detectar nuevas semanas elegibles
         const previouslyEligible = Object.keys(ticket.eligible || {}).filter(w => ticket.eligible[w]);
         const nowEligible = Object.keys(newEligibility).filter(w => newEligibility[w]);
         const newlyEligible = nowEligible.filter(w => !previouslyEligible.includes(w));
         
-        // Actualizar ticket
         const updates = {
             amountPaid: newAmount,
             estadoPago: newAmount >= TICKET_PRICE ? 'pagado' : 'abonado',
@@ -1312,16 +1481,15 @@ async function registerPaymentForTicket(ticketNumber, amount) {
             eligible: newEligibility
         };
         
-        // Agregar pago al historial
         const payments = ticket.payments || [];
         payments.push({ amount, date: now });
         updates.payments = payments;
         
         await update(ticketRef, updates);
         
+        log('success', 'Pago registrado', { ticketNumber, newAmount });
         alert(`✅ Abono registrado: ${amount.toLocaleString('es-CO')}\nTotal: ${newAmount.toLocaleString('es-CO')}`);
         
-        // Si hay nuevas semanas elegibles, enviar correo
         if (newlyEligible.length > 0) {
             await sendEmail({
                 to_email: ticket.correo,
@@ -1335,21 +1503,21 @@ async function registerPaymentForTicket(ticketNumber, amount) {
             });
         }
         
-        // Recargar tabla si estamos en esa pestaña
         if (!document.getElementById('contentDatabase').classList.contains('hidden')) {
             loadDatabaseTable();
         }
         
     } catch (error) {
-        console.error('Error:', error);
+        log('error', 'Error registrando pago', error);
         alert('❌ Error al registrar pago: ' + error.message);
     }
 }
 
-// Buscar ganador
 async function findWinner() {
     const number = document.getElementById('winningNumber').value.padStart(3, '0');
     const inverted = getInvertedNumber(number);
+    
+    log('info', 'Buscando ganador', { number, inverted });
     
     const snapshot = await get(ref(db, 'tickets'));
     const data = snapshot.val() || {};
@@ -1370,6 +1538,8 @@ async function findWinner() {
         `;
         return;
     }
+    
+    log('success', 'Ganador encontrado', { winners: winners.length });
     
     resultDiv.innerHTML = `
         <div class="bg-green-600/30 border border-green-500 rounded p-4">
@@ -1392,7 +1562,6 @@ async function findWinner() {
     `;
 }
 
-// Enviar email de elegibilidad manual
 async function sendEligibilityEmail(email, ticketNumber) {
     const snapshot = await get(ref(db, `tickets/ticket_${ticketNumber}`));
     if (!snapshot.exists()) return;
@@ -1416,7 +1585,6 @@ async function sendEligibilityEmail(email, ticketNumber) {
     alert('✅ Correo enviado');
 }
 
-// Eliminar boleta
 async function deleteTicket(ticketNumber) {
     if (!confirm(`¿Eliminar la Boleta #${ticketNumber}?`)) return;
     
@@ -1426,7 +1594,6 @@ async function deleteTicket(ticketNumber) {
         
         if (snapshot.exists()) {
             const ticket = snapshot.val();
-            // Devolver números al pool
             if (ticket.numerosAsignados) {
                 ticket.numerosAsignados.forEach(num => {
                     if (!availableNumbers.includes(num)) {
@@ -1436,21 +1603,22 @@ async function deleteTicket(ticketNumber) {
             }
             
             await set(ticketRef, null);
+            log('success', 'Boleta eliminada', { ticketNumber });
             alert('✅ Boleta eliminada');
             loadDatabaseTable();
         }
     } catch (error) {
+        log('error', 'Error eliminando boleta', error);
         alert('❌ Error: ' + error.message);
     }
 }
 
-// Mantener función loadAllTickets por compatibilidad
 async function loadAllTickets() {
     await loadDatabaseTable();
 }
 
 /* ============================================
-   FUNCIONES GLOBALES
+   FUNCIONES GLOBALES - MODAL TÉRMINOS
 ============================================ */
 function showTerms() {
     document.getElementById('termsModal').classList.remove('hidden');
@@ -1460,12 +1628,15 @@ function closeTerms() {
     document.getElementById('termsModal').classList.add('hidden');
 }
 
-// Exponer funciones al scope global
+/* ============================================
+   EXPONER FUNCIONES AL SCOPE GLOBAL
+============================================ */
 window.openPurchaseForm = openPurchaseForm;
 window.closePurchaseForm = closePurchaseForm;
 window.submitPurchase = submitPurchase;
 window.showTerms = showTerms;
 window.closeTerms = closeTerms;
+window.openWhatsAppManual = openWhatsAppManual;
 window.checkAdminAccess = checkAdminAccess;
 window.toggleAdmin = toggleAdmin;
 window.loginAdmin = loginAdmin;
@@ -1484,10 +1655,11 @@ window.registerManualPaymentFor = registerManualPaymentFor;
 window.findWinner = findWinner;
 window.sendEligibilityEmail = sendEligibilityEmail;
 window.deleteTicket = deleteTicket;
+window.confirmReservation = confirmReservation;
 
 // Iniciar
 checkAdminAccess();
 
-    </script>
+</script>
 </body>
 </html>
