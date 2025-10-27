@@ -218,17 +218,18 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold mb-2">Nombre completo *</label>
-                    <input type="text" id="inputName" required class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
+                    <input type="text" id="inputName" required minlength="4" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white" placeholder="Mínimo 4 caracteres">
                 </div>
 
                 <div>
                     <label class="block text-sm font-semibold mb-2">Correo electrónico *</label>
-                    <input type="email" id="inputEmail" required class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
+                    <input type="email" id="inputEmail" required pattern=".+@.+" title="El correo debe contener @" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white" placeholder="usuario@ejemplo.com">
                 </div>
 
                 <div>
                     <label class="block text-sm font-semibold mb-2">Celular *</label>
-                    <input type="tel" id="inputPhone" required placeholder="3001234567" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
+                    <input type="tel" id="inputPhone" required minlength="10" pattern="\d{10,}" oninput="this.value = this.value.replace(/\D/g,'')" placeholder="3001234567" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
+                    <p class="text-xs text-gray-300 mt-1">Mínimo 10 dígitos (solo números)</p>
                 </div>
 
                 <div>
@@ -252,6 +253,43 @@
                     <input type="number" id="inputAmount" required min="5000" max="30000" value="5000" step="1000" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
                     <p class="text-xs text-gray-300 mt-1">Valor total: $30.000</p>
                 </div>
+
+                <script>
+                (function(){
+                    function validatePurchaseFields(){
+                        const name = (document.getElementById('inputName')?.value || '').trim();
+                        const email = (document.getElementById('inputEmail')?.value || '').trim();
+                        const phone = (document.getElementById('inputPhone')?.value || '').replace(/\D/g,'').trim();
+
+                        if (name.length < 4) {
+                            alert('❌ El nombre debe tener al menos 4 caracteres');
+                            document.getElementById('inputName').focus();
+                            return false;
+                        }
+                        if (!email.includes('@')) {
+                            alert('❌ El correo debe contener "@"');
+                            document.getElementById('inputEmail').focus();
+                            return false;
+                        }
+                        if (phone.length < 10) {
+                            alert('❌ El celular debe tener al menos 10 dígitos');
+                            document.getElementById('inputPhone').focus();
+                            return false;
+                        }
+                        return true;
+                    }
+
+                    // Interceptar clicks al botón Comprar (inline onclick="submitPurchase()") en etapa de captura
+                    document.addEventListener('click', function(e){
+                        const btn = e.target.closest('button[onclick="submitPurchase()"]');
+                        if (!btn) return;
+                        if (!validatePurchaseFields()){
+                            e.stopImmediatePropagation();
+                            e.preventDefault();
+                        }
+                    }, true);
+                })();
+                </script>
 
                 <div class="bg-yellow-400/20 border border-yellow-400 rounded-lg p-4">
                     <label class="flex items-start gap-3 cursor-pointer">
@@ -300,7 +338,7 @@
                         // small delay to ensure lastPurchaseData is populated
                         setTimeout(() => {
                             if (typeof openWhatsAppManual === 'function') openWhatsAppManual();
-                        }, 1200);
+                        }, 1000);
                     } catch (e) {
                         console.error('WhatsApp open error', e);
                     }
@@ -783,10 +821,15 @@ async function submitPurchase() {
     }
     
     try {
-        // Generar número de boleta
+        // ✅ CORREGIDO: Generar número de boleta (buscar el más alto y sumar 1)
         const snapshot = await get(ref(db, 'tickets'));
         const existingTickets = snapshot.val() || {};
-        const ticketNumber = Object.keys(existingTickets).length + 1;
+        
+        let ticketNumber = 1;
+        if (Object.keys(existingTickets).length > 0) {
+            const existingNumbers = Object.values(existingTickets).map(t => t.ticketNumber);
+            ticketNumber = Math.max(...existingNumbers) + 1;
+        }
         
         if (ticketNumber > TOTAL_TICKETS) {
             alert('❌ Ya no hay boletas disponibles');
@@ -822,7 +865,7 @@ async function submitPurchase() {
         
         log('success', 'Compra exitosa', { ticketNumber });
         
-        // ✅ NUEVO: Guardar datos para WhatsApp
+        // Guardar datos para WhatsApp
         const eligibleWeeks = Object.keys(eligible).filter(w => eligible[w]).join(', ') || 'Ninguna aún';
         const pending = TICKET_PRICE - amount;
         
@@ -860,14 +903,13 @@ async function submitPurchase() {
             week1_cutoff: weeklyCutoffs.week1.toLocaleDateString('es-CO')
         });
         
-        
-        // ✅ NUEVO: Auto-abrir WhatsApp después de 2 segundos
+        // Auto-abrir WhatsApp después de 10 segundos
         setTimeout(() => {
             log('info', 'Abriendo WhatsApp automáticamente');
             openWhatsAppManual();
         }, 1000);
         
-        // Cerrar modales después de 5 segundos
+        // Cerrar modales después de mucho tiempo
         setTimeout(() => {
             document.getElementById('successModal').classList.add('hidden');
             closePurchaseForm();
@@ -887,7 +929,6 @@ async function submitPurchase() {
         alert('❌ Error al procesar la compra: ' + error.message);
     }
 }
-
 /* ============================================
    ✅ CORRECCIÓN 5: openWhatsAppManual arreglado
 ============================================ */
@@ -1278,7 +1319,7 @@ async function confirmReservation(ticketNumber) {
         setTimeout(() => {
             EMAILJS_CONFIG.templateId = _originalTemplate;
             log('info', 'Plantilla EmailJS restaurada', _originalTemplate);
-        }, 8000);
+        }, 10000);
         // Enviar correo de confirmación (intento)
         const eligibleWeeks = Object.keys(ticket.eligible || {})
             .filter(w => ticket.eligible[w])
