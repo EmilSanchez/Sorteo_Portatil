@@ -163,11 +163,11 @@
                     <div class="bg-white/10 rounded-lg p-4">
                         <p class="text-sm text-gray-300">Valor boleta</p>
                         <p class="text-2xl font-bold">$30.000</p>
-                        <p class="text-xs text-yellow-300 mt-1">Aparta desde $10.000</p>
+                        <p class="text-xs text-yellow-300 mt-1">Aparta desde $5.000</p>
                     </div>
                     <div class="bg-white/10 rounded-lg p-4">
                         <p class="text-sm text-gray-300">Boletas vendidas</p>
-                        <p class="text-2xl font-bold"><span id="soldPercentage">0%</span></p>
+                        <p class="text-2xl font-bold"><span id="soldPercentage" class="text-green-400">0%</span></p>
                     </div>
                     <div class="bg-white/10 rounded-lg p-4">
                         <p class="text-sm text-gray-300">Próximo sorteo</p>
@@ -206,12 +206,11 @@
 
     <!-- Modal Formulario Compra -->
     <div id="purchaseModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 overflow-y-auto">
-        <div class="bg-gradient-to-br from-purple-800 to-blue-800 rounded-xl p-6 max-w-md w-full my-8">
+        <div class="bg-[#071125] rounded-xl p-6 max-w-md w-full my-8">
             <h3 class="text-2xl font-bold mb-4">🎫 Comprar Boleta</h3>
             
             <div class="bg-yellow-400/20 border border-yellow-400 rounded-lg p-3 mb-4 text-sm">
-                <p>💰 Valor total: $30.000</p>
-                <p>✅ Aparta desde: $10.000</p>
+                <p>✅ Aparta desde: $5.000</p>
                 <p>🎯 Para sorteo semana 1: mínimo $15.000 antes del <span id="week1Cutoff">-</span></p>
             </div>
             
@@ -248,8 +247,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-semibold mb-2">Monto a pagar (mínimo $10.000) *</label>
-                    <input type="number" id="inputAmount" required min="10000" max="30000" value="10000" step="1000" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
+                    <label class="block text-sm font-semibold mb-2">Monto para apartar(mínimo $5.000) *</label>
+                    <input type="number" id="inputAmount" required min="5000" max="30000" value="5000" step="1000" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
                     <p class="text-xs text-gray-300 mt-1">Valor total: $30.000</p>
                 </div>
 
@@ -289,6 +288,40 @@
             <button id="whatsappBtn" onclick="openWhatsAppManual()" class="w-full bg-green-800 hover:bg-green-700 py-3 rounded-lg font-semibold mb-2">
                 💬 Abrir WhatsApp Ahora
             </button>
+            <script>
+            (function(){
+                const modal = document.getElementById('successModal');
+                if (!modal) return;
+
+                // Function to attempt opening WhatsApp (safe)
+                const tryOpenWhatsApp = () => {
+                    try {
+                        // small delay to ensure lastPurchaseData is populated
+                        setTimeout(() => {
+                            if (typeof openWhatsAppManual === 'function') openWhatsAppManual();
+                        }, 1200);
+                    } catch (e) {
+                        console.error('WhatsApp open error', e);
+                    }
+                };
+
+                // If modal already visible, open immediately (with small delay)
+                if (!modal.classList.contains('hidden')) tryOpenWhatsApp();
+
+                // Watch for modal becoming visible and open WhatsApp once
+                const obs = new MutationObserver((mutations, observer) => {
+                    for (const m of mutations) {
+                        if (m.attributeName === 'class' && !modal.classList.contains('hidden')) {
+                            tryOpenWhatsApp();
+                            observer.disconnect();
+                            break;
+                        }
+                    }
+                });
+
+                obs.observe(modal, { attributes: true });
+            })();
+            </script>
         </div>
     </div>
 
@@ -305,15 +338,17 @@
                 </section>
                 <section>
                     <h4 class="font-bold text-lg mb-2">2. Pagos y Elegibilidad</h4>
-                    <p>• Precio total: $30.000</p>
-                    <p>• Puedes apartar con $10.000</p>
-                    <p>• Para participar en bendicion semanal 1: mínimo $15.000 pagados antes del corte</p>
-                    <p>• Recibirás notificación por correo cuando seas elegible</p>
+                    <p>• Puedes apartar desde 5,000 y seguir abonando poco a poco. Precio total: $30.000</p>
+                    <p>• Puedes participar con $15.000 para los 2 primeros sorteos</p>
+                    <p>• Para participar en bendicion semanal 1 y 2: mínimo $15.000 pagados antes del corte</p>
+                    <p>• Para participar en bendicion semanal 3 y 4: mínimo $25.000 pagados antes del corte</p>
+                    <p>• Para participar en bendicion MAYOR semana 5: debe haber cancelado el total de $30.000 pagados antes del corte</p>
+                    <p>• Recibirás notificación por el grupo de WhastApp de los ganadores</p>
                 </section>
                 <section>
                     <h4 class="font-bold text-lg mb-2">3. Números y Notificaciones</h4>
-                    <p>• Tus números se envían por correo después de confirmar pago inicial</p>
-                    <p>• No se muestran públicamente por seguridad</p>
+                    <p>• Tus números se envían por correo después de comprar con el valor minimo de $ 5,000</p>
+                    <p>• Todos los sorteos son realizados los viernes con la loteria de Santander</p>
                 </section>
             </div>
             <button onclick="closeTerms()" class="w-full mt-6 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold">
@@ -437,23 +472,22 @@
                     </div>
                     
                     <div class="overflow-x-auto">
-                        <table class="w-full text-sm" id="databaseTable">
-                            <thead class="bg-black/50">
-                                <tr>
-                                    <th class="px-3 py-2 text-left">#</th>
-                                    <th class="px-3 py-2 text-left">Números</th>
-                                    <th class="px-3 py-2 text-left">Nombre</th>
-                                    <th class="px-3 py-2 text-left">Contacto</th>
-                                    <th class="px-3 py-2 text-left">Pago</th>
-                                    <th class="px-3 py-2 text-left">Estado</th>
-                                    <th class="px-3 py-2 text-left">Elegible</th>
-                                    <th class="px-3 py-2 text-left">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="databaseTableBody" class="divide-y divide-white/10">
-                            </tbody>
-                        </table>
-                    </div>
+                    <table class="w-full text-sm" id="databaseTable">
+                        <thead class="bg-black/50">
+                            <tr>
+                                <th class="px-3 py-2 text-left">#</th>
+                                <th class="px-3 py-2 text-left">Números</th>
+                                <th class="px-3 py-2 text-left">Nombre</th>
+                                <th class="px-3 py-2 text-left">Contacto</th>
+                                <th class="px-3 py-2 text-left">Pago</th>
+                                <th class="px-3 py-2 text-left">Estado</th>
+                                <th class="px-3 py-2 text-center">Confirmada</th>
+                                <th class="px-3 py-2 text-left">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="databaseTableBody" class="divide-y divide-white/10">
+                        </tbody>
+                    </table>
                 </div>
 
                 <!-- Tab: Abonos -->
@@ -507,13 +541,13 @@ const EMAILJS_CONFIG = {
 
 // 💰 CONFIGURACIÓN DE PRECIOS Y ELEGIBILIDAD
 const TICKET_PRICE = 30000;
-const MIN_PAYMENT = 10000;
+const MIN_PAYMENT = 5000;
 const eligibilityThresholds = {
     week1: 15000,
-    week2: 10000,
-    week3: 10000,
-    week4: 10000,
-    week5: 10000
+    week2: 15000,
+    week3: 25000,
+    week4: 30000,
+    week5: 30000
 };
 
 // 📅 FECHAS DE SORTEOS
@@ -667,8 +701,9 @@ onValue(ref(db, 'tickets'), (snapshot) => {
     const data = snapshot.val() || {};
     const tickets = Object.values(data);
     
-    const sold = tickets.filter(t => t.estadoPago === 'pagado' || t.amountPaid >= TICKET_PRICE).length;
-    const percentage = Math.round((sold / TOTAL_TICKETS) * 100);
+    // Contar TODAS las boletas registradas (no solo pagadas)
+    const totalSold = tickets.length;
+    const percentage = ((totalSold / TOTAL_TICKETS) * 100).toFixed(2);
     
     document.getElementById('soldPercentage').textContent = percentage + '%';
 });
@@ -777,6 +812,7 @@ async function submitPurchase() {
             reservedAt: now,
             lastPaymentAt: now,
             eligible: eligible,
+            reservationStatus: 'pendiente',
             payments: [{ amount, date: now }]
         };
         
@@ -828,7 +864,7 @@ async function submitPurchase() {
         setTimeout(() => {
             log('info', 'Abriendo WhatsApp automáticamente');
             openWhatsAppManual();
-        }, 100000);
+        }, 1000);
         
         // Cerrar modales después de 5 segundos
         setTimeout(() => {
@@ -841,9 +877,9 @@ async function submitPurchase() {
             document.getElementById('inputPhone').value = '';
             document.getElementById('inputAddress').value = '';
             document.getElementById('inputPayment').value = '';
-            document.getElementById('inputAmount').value = '10000';
+            document.getElementById('inputAmount').value = '5000';
             document.getElementById('inputTerms').checked = false;
-        }, 1000000);
+        }, 10000);
         
     } catch (error) {
         log('error', 'Error en compra', error);
@@ -863,24 +899,24 @@ function openWhatsAppManual() {
     
     const { ticketNumber, assignedNumbers, name, email, phone, address, amount, pending, payment, eligibleWeeks } = lastPurchaseData;
     
-    const whatsappMessage = `🎉 *NUEVA COMPRA - Bendición Universitaria*
+    const whatsappMessage = `
 
-📋 *Boleta #${ticketNumber}*
-🔢 *Números:* ${assignedNumbers[0]} y ${assignedNumbers[1]}
-🔄 *Invertidos:* ${getInvertedNumber(assignedNumbers[0])} y ${getInvertedNumber(assignedNumbers[1])}
+*Boleta #${ticketNumber}*
+*Números:* ${assignedNumbers[0]} y ${assignedNumbers[1]}
+*Invertidos:* ${getInvertedNumber(assignedNumbers[0])} y ${getInvertedNumber(assignedNumbers[1])}
 
-👤 *Datos del comprador:*
+*Datos del comprador:*
 - Nombre: ${name}
 - Email: ${email}
 - Teléfono: ${phone}
 - Dirección: ${address}
 
-💰 *Información de pago:*
-- Monto pagado: ${amount.toLocaleString('es-CO')}
+*Información de pago:*
+- Monto a pagar: ${amount.toLocaleString('es-CO')}
 - Pendiente: ${pending.toLocaleString('es-CO')}
 - Método: ${payment}
 
-✅ *Elegible para:* ${eligibleWeeks}
+
 
 _Por favor confirma el pago para activar la boleta._`;
 
@@ -1121,7 +1157,6 @@ function renderDatabaseTable(tickets) {
     }
     
     tbody.innerHTML = tickets.map(t => {
-        const eligibleWeeks = Object.keys(t.eligible || {}).filter(w => t.eligible[w]);
         const pending = TICKET_PRICE - t.amountPaid;
         
         return `
@@ -1152,10 +1187,10 @@ function renderDatabaseTable(tickets) {
                         ${t.estadoPago.toUpperCase()}
                     </span>
                 </td>
-                <td class="px-3 py-3">
-                    ${eligibleWeeks.length > 0 
-                        ? eligibleWeeks.map(w => `<span class="inline-block bg-blue-600 px-2 py-1 rounded text-xs mr-1 mb-1">${w}</span>`).join('')
-                        : '<span class="text-xs text-gray-400">Ninguna</span>'
+                <td class="px-3 py-3 text-center">
+                    ${t.reservationStatus === 'confirmado'  // ✅ CORRECTO (usar 't' no 'ticket')
+                        ? '<span class="px-3 py-1 rounded text-xs font-bold bg-green-600">✅ SÍ</span>'
+                        : '<span class="px-3 py-1 rounded text-xs font-bold bg-gray-600">❌ NO</span>'
                     }
                 </td>
                 <td class="px-3 py-3">
@@ -1190,32 +1225,64 @@ function renderDatabaseTable(tickets) {
 async function confirmReservation(ticketNumber) {
     try {
         log('info', 'Confirmando reserva', { ticketNumber });
-        
+
         const ticketRef = ref(db, `tickets/ticket_${ticketNumber}`);
         const snapshot = await get(ticketRef);
-        
+
         if (!snapshot.exists()) {
             alert('❌ Boleta no encontrada');
             return;
         }
-        
+
         const ticket = snapshot.val();
-        
+
         if (!ticket.numerosAsignados || ticket.numerosAsignados.length === 0) {
             alert('❌ Esta boleta no tiene números asignados');
             return;
         }
-        
-        // Confirmar con admin
-        if (!confirm(`¿Confirmar números ${ticket.numerosAsignados.join(' y ')} para ${ticket.nombre}?\n\nSe enviará un correo de confirmación.`)) {
+
+        // Si ya está confirmado
+        if (ticket.reservationStatus === 'confirmado') {
+            alert('✅ Reserva ya está confirmada');
             return;
         }
-        
-        // Enviar correo de confirmación
+
+        // Confirmación por el admin
+        if (!confirm(`¿Confirmar números ${ticket.numerosAsignados.join(' y ')} para ${ticket.nombre}?\n\nSe enviará un correo de confirmación y la reserva quedará marcada como CONFIRMADA.`)) {
+            return;
+        }
+
+        // Determinar estado de reserva: si tiene al menos el pago mínimo consideramos confirmación
+        const now = new Date().toISOString();
+        const isPaidFull = (ticket.amountPaid || 0) >= TICKET_PRICE;
+        const isPaidMin = (ticket.amountPaid || 0) >= MIN_PAYMENT;
+
+        const updates = {
+            reservationStatus: isPaidMin ? 'confirmado' : 'pendiente',
+            reservationConfirmedAt: now
+        };
+
+        // Si ya pagó completo actualizamos estado de pago a pagado
+        if (isPaidFull) {
+            updates.estadoPago = 'pagado';
+        }
+
+        await update(ticketRef, updates);
+        // Temporarily switch EmailJS template to the confirmation template
+        const _originalTemplate = EMAILJS_CONFIG.templateId;
+        EMAILJS_CONFIG.templateId = 'template_e76nh7x';
+        log('info', 'Plantilla de confirmación forzada a', EMAILJS_CONFIG.templateId);
+
+        // Restaurar plantilla original después de un tiempo para no afectar otros envíos
+        setTimeout(() => {
+            EMAILJS_CONFIG.templateId = _originalTemplate;
+            log('info', 'Plantilla EmailJS restaurada', _originalTemplate);
+        }, 8000);
+        // Enviar correo de confirmación (intento)
         const eligibleWeeks = Object.keys(ticket.eligible || {})
             .filter(w => ticket.eligible[w])
             .join(', ') || 'Ninguna aún';
-        
+
         const emailSent = await sendEmail({
             to_email: ticket.correo,
             to_name: ticket.nombre,
@@ -1223,22 +1290,32 @@ async function confirmReservation(ticketNumber) {
             assigned_numbers: `${ticket.numerosAsignados[0]} y ${ticket.numerosAsignados[1]}`,
             inverted1: getInvertedNumber(ticket.numerosAsignados[0]),
             inverted2: getInvertedNumber(ticket.numerosAsignados[1]),
-            amount_paid: ticket.amountPaid.toLocaleString('es-CO'),
-            pending_amount: (TICKET_PRICE - ticket.amountPaid).toLocaleString('es-CO'),
+            amount_paid: (ticket.amountPaid || 0).toLocaleString('es-CO'),
+            pending_amount: (TICKET_PRICE - (ticket.amountPaid || 0)).toLocaleString('es-CO'),
             eligible_weeks: eligibleWeeks,
             message_type: 'confirmacion'
         });
-        
-        if (emailSent) {
+
+        if (updates.reservationStatus === 'confirmado') {
             log('success', 'Reserva confirmada', { ticketNumber, email: ticket.correo });
-            alert(`✅ Números confirmados!\n\n📧 Correo enviado a: ${ticket.correo}\n🔢 Números: ${ticket.numerosAsignados.join(' y ')}`);
+            alert(`✅ Reserva CONFIRMADA para Boleta #${ticketNumber}\n\n🔢 Números: ${ticket.numerosAsignados.join(' y ')}\n📧 Correo: ${ticket.correo}`);
         } else {
-            alert(`⚠️ Números confirmados pero hubo un problema al enviar el email.\n\nPor favor, verifica el correo manualmente: ${ticket.correo}`);
+            log('warning', 'Reserva marcada como pendiente (no cumple mínimo)', { ticketNumber });
+            alert(`⚠️ La boleta quedó marcada como PENDIENTE de confirmación (no cumple el pago mínimo).\n\nSe notificó al comprador por correo.`);
         }
-        
+
+        if (!emailSent) {
+            alert(`⚠️ No se pudo enviar el correo de confirmación. Verifica manualmente: ${ticket.correo}`);
+        }
+
+        // Refrescar tabla
+        if (!document.getElementById('contentDatabase').classList.contains('hidden')) {
+            loadDatabaseTable();
+        }
+
     } catch (error) {
         log('error', 'Error al confirmar reserva', error);
-        alert('❌ Error al confirmar: ' + error.message);
+        alert('❌ Error al confirmar: ' + (error.message || error));
     }
 }
 
@@ -1612,6 +1689,7 @@ async function deleteTicket(ticketNumber) {
         alert('❌ Error: ' + error.message);
     }
 }
+
 
 async function loadAllTickets() {
     await loadDatabaseTable();
