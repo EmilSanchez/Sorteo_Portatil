@@ -10,6 +10,12 @@
     <!-- EmailJS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
+
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(37, 211, 102, 0.8); }
+        }
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
@@ -321,7 +327,7 @@
             <div class="bg-white/20 rounded-lg p-4 mb-4 text-left">
                 <p class="font-bold text-center mb-2">Boleta #<span id="successTicketNum"></span></p>
                 <p class="text-sm">📧 Recibirás un correo con tus números</p>
-                <p class="text-sm mt-2">💰 Pagado: $<span id="successAmount"></span></p>
+                <p class="text-sm mt-2">Valor a pagar: $<span id="successAmount"></span></p>
                 <p class="text-sm">⏳ Pendiente: $<span id="successPending"></span></p>
             </div>
             <p class="text-sm mb-4">📱 Se abrirá WhatsApp para enviar tu comprobante</p>
@@ -379,11 +385,11 @@
                 <section>
                     <h4 class="font-bold text-lg mb-2">2. Pagos y Elegibilidad</h4>
                     <p>• Puedes apartar desde 5,000 y seguir abonando poco a poco. Precio total: $30.000</p>
-                    <p>• Puedes participar con $15.000 para los 2 primeros sorteos</p>
-                    <p>• Para participar en bendicion semanal 1 y 2: mínimo $15.000 pagados antes del corte</p>
-                    <p>• Para participar en bendicion semanal 3 y 4: mínimo $25.000 pagados antes del corte</p>
-                    <p>• Para participar en bendicion MAYOR semana 5: debe haber cancelado el total de $30.000 pagados antes del corte</p>
-                    <p>• Recibirás notificación por el grupo de WhastApp de los ganadores</p>
+                    <p>• Para participar en los 2 primeros sorteos debes haber pagado el 50% del valor total (15,000)</p>
+                    <p>• Para participar en los siguientes 2 sorteos debes haber pagado el 100% del valor total (30,000)</p>
+                    <p>• Asi todos al haber pagado la totalidad de la boleta participan para el premio mayor</p>
+                    <p>• Recibirás notificación por el grupo de WhastApp de los ganadores cada semana!</p>
+                    <p>• Mucha Suerte!</p>
                 </section>
                 <section>
                     <h4 class="font-bold text-lg mb-2">3. Números y Notificaciones</h4>
@@ -888,7 +894,7 @@ async function submitPurchase() {
         document.getElementById('successAmount').textContent = amount.toLocaleString('es-CO');
         document.getElementById('successPending').textContent = pending.toLocaleString('es-CO');
         document.getElementById('successModal').classList.remove('hidden');
-        
+
         // Enviar correo
         await sendEmail({
             to_email: email,
@@ -903,14 +909,25 @@ async function submitPurchase() {
             week1_threshold: eligibilityThresholds.week1.toLocaleString('es-CO'),
             week1_cutoff: weeklyCutoffs.week1.toLocaleDateString('es-CO')
         });
-        
-        // Auto-abrir WhatsApp después de 10 segundos
+
+        // ✅ Enfocar el botón de WhatsApp para facilitar el clic
         setTimeout(() => {
-            log('info', 'Abriendo WhatsApp automáticamente');
-            openWhatsAppManual();
-        }, 1000);
-        
-        // Cerrar modales después de mucho tiempo
+            const whatsappBtn = document.getElementById('whatsappBtn');
+            if (whatsappBtn) {
+                whatsappBtn.focus();
+                // Hacer que parpadee para llamar la atención
+                whatsappBtn.style.animation = 'pulse 1s infinite';
+            }
+        }, 500);
+
+        // esperar 2 segundos
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // Abrir WhatsApp
+        log('info', 'Abriendo WhatsApp');
+        openWhatsAppManual();
+
+        // Cerrar modal después de 15 segundos adicionales
         setTimeout(() => {
             document.getElementById('successModal').classList.add('hidden');
             closePurchaseForm();
@@ -923,13 +940,16 @@ async function submitPurchase() {
             document.getElementById('inputPayment').value = '';
             document.getElementById('inputAmount').value = '5000';
             document.getElementById('inputTerms').checked = false;
-        }, 10000);
+        }, 15000);
         
     } catch (error) {
         log('error', 'Error en compra', error);
         alert('❌ Error al procesar la compra: ' + error.message);
     }
 }
+
+
+
 /* ============================================
    ✅ CORRECCIÓN 5: openWhatsAppManual arreglado
 ============================================ */
@@ -1241,15 +1261,15 @@ function renderDatabaseTable(tickets) {
                         <button onclick="viewTicketDetails(${t.ticketNumber})" class="bg-blue-600 hover:bg-blue-500 px-2 py-1 rounded text-xs" title="Ver detalles">
                             👁️
                         </button>
-                        ${t.estadoPago === 'abonado' ? `
-                            <button onclick="confirmReservation(${t.ticketNumber})" class="bg-yellow-600 hover:bg-yellow-500 px-2 py-1 rounded text-xs" title="Confirmar números">
-                                ✔️
-                            </button>
+                        ${t.reservationStatus !== 'confirmado' ? `
+                        <button onclick="confirmReservation(${t.ticketNumber})" class="bg-purple-600 hover:bg-purple-500 px-2 py-1 rounded text-xs font-bold" title="Confirmar reserva">
+                            ✅
+                        </button>
                         ` : ''}
                         <button onclick="registerManualPaymentFor(${t.ticketNumber})" class="bg-green-600 hover:bg-green-500 px-2 py-1 rounded text-xs" title="Abonar">
                             💰
                         </button>
-                        <button onclick="sendEligibilityEmail('${t.correo}', ${t.ticketNumber})" class="bg-purple-600 hover:bg-purple-500 px-2 py-1 rounded text-xs" title="Email">
+                        <button onclick="sendEligibilityEmail('${t.correo}', ${t.ticketNumber})" class="bg-indigo-600 hover:bg-indigo-500 px-2 py-1 rounded text-xs" title="Email">
                             📧
                         </button>
                         <button onclick="deleteTicket(${t.ticketNumber})" class="bg-red-600 hover:bg-red-500 px-2 py-1 rounded text-xs" title="Eliminar">
@@ -1286,42 +1306,55 @@ async function confirmReservation(ticketNumber) {
 
         // Si ya está confirmado
         if (ticket.reservationStatus === 'confirmado') {
-            alert('✅ Reserva ya está confirmada');
+            alert('✅ Esta reserva ya está confirmada');
             return;
         }
 
-        // Confirmación por el admin
-        if (!confirm(`¿Confirmar números ${ticket.numerosAsignados.join(' y ')} para ${ticket.nombre}?\n\nSe enviará un correo de confirmación y la reserva quedará marcada como CONFIRMADA.`)) {
+        // Mostrar información del pago
+        const metodoPago = ticket.metodoPago || 'No especificado';
+        const montoPagado = ticket.amountPaid || 0;
+        const pendiente = TICKET_PRICE - montoPagado;
+
+        // Confirmación detallada
+        const confirmMsg = `¿Confirmar reserva de la Boleta #${ticketNumber}?
+        
+        👤 Cliente: ${ticket.nombre}
+        🔢 Números: ${ticket.numerosAsignados.join(' y ')}
+        💰 Monto registrado: $${montoPagado.toLocaleString('es-CO')}
+        💳 Método: ${metodoPago}
+        ⏳ Pendiente: $${pendiente.toLocaleString('es-CO')}
+
+        ${metodoPago === 'Efectivo' ? '⚠️ RECUERDA: Verifica que hayas recibido el dinero en efectivo antes de confirmar.' : ''}
+
+        Se enviará correo de confirmación con los números asignados.`;
+
+        if (!confirm(confirmMsg)) {
             return;
         }
 
-        // Determinar estado de reserva: si tiene al menos el pago mínimo consideramos confirmación
+        // Actualizar estado
         const now = new Date().toISOString();
-        const isPaidFull = (ticket.amountPaid || 0) >= TICKET_PRICE;
-        const isPaidMin = (ticket.amountPaid || 0) >= MIN_PAYMENT;
-
         const updates = {
-            reservationStatus: isPaidMin ? 'confirmado' : 'pendiente',
+            reservationStatus: 'confirmado',
             reservationConfirmedAt: now
         };
 
-        // Si ya pagó completo actualizamos estado de pago a pagado
-        if (isPaidFull) {
+        // Si el monto registrado es el total, marcar como pagado
+        if (montoPagado >= TICKET_PRICE) {
             updates.estadoPago = 'pagado';
         }
 
         await update(ticketRef, updates);
-        // Temporarily switch EmailJS template to the confirmation template
+
+        // Cambiar temporalmente a plantilla de confirmación
         const _originalTemplate = EMAILJS_CONFIG.templateId;
         EMAILJS_CONFIG.templateId = 'template_e76nh7x';
-        log('info', 'Plantilla de confirmación forzada a', EMAILJS_CONFIG.templateId);
-
-        // Restaurar plantilla original después de un tiempo para no afectar otros envíos
+        
         setTimeout(() => {
             EMAILJS_CONFIG.templateId = _originalTemplate;
-            log('info', 'Plantilla EmailJS restaurada', _originalTemplate);
         }, 10000);
-        // Enviar correo de confirmación (intento)
+
+        // Enviar correo de confirmación
         const eligibleWeeks = Object.keys(ticket.eligible || {})
             .filter(w => ticket.eligible[w])
             .join(', ') || 'Ninguna aún';
@@ -1333,33 +1366,34 @@ async function confirmReservation(ticketNumber) {
             assigned_numbers: `${ticket.numerosAsignados[0]} y ${ticket.numerosAsignados[1]}`,
             inverted1: getInvertedNumber(ticket.numerosAsignados[0]),
             inverted2: getInvertedNumber(ticket.numerosAsignados[1]),
-            amount_paid: (ticket.amountPaid || 0).toLocaleString('es-CO'),
-            pending_amount: (TICKET_PRICE - (ticket.amountPaid || 0)).toLocaleString('es-CO'),
+            amount_paid: montoPagado.toLocaleString('es-CO'),
+            pending_amount: pendiente.toLocaleString('es-CO'),
             eligible_weeks: eligibleWeeks,
             message_type: 'confirmacion'
         });
 
-        if (updates.reservationStatus === 'confirmado') {
-            log('success', 'Reserva confirmada', { ticketNumber, email: ticket.correo });
-            alert(`✅ Reserva CONFIRMADA para Boleta #${ticketNumber}\n\n🔢 Números: ${ticket.numerosAsignados.join(' y ')}\n📧 Correo: ${ticket.correo}`);
-        } else {
-            log('warning', 'Reserva marcada como pendiente (no cumple mínimo)', { ticketNumber });
-            alert(`⚠️ La boleta quedó marcada como PENDIENTE de confirmación (no cumple el pago mínimo).\n\nSe notificó al comprador por correo.`);
-        }
+        if (emailSent) {
+            alert(`✅ Reserva CONFIRMADA
+            
+            Boleta #${ticketNumber}
+            🔢 Números: ${ticket.numerosAsignados.join(' y ')}
+            📧 Correo enviado a: ${ticket.correo}`);
+            } else {
+                alert(`✅ Reserva confirmada pero NO se pudo enviar el correo.
+                
+            Verifica manualmente: ${ticket.correo}
+            Números: ${ticket.numerosAsignados.join(' y ')}`);
+            }
 
-        if (!emailSent) {
-            alert(`⚠️ No se pudo enviar el correo de confirmación. Verifica manualmente: ${ticket.correo}`);
-        }
+            // Refrescar tabla
+            if (!document.getElementById('contentDatabase').classList.contains('hidden')) {
+                loadDatabaseTable();
+            }
 
-        // Refrescar tabla
-        if (!document.getElementById('contentDatabase').classList.contains('hidden')) {
-            loadDatabaseTable();
-        }
-
-    } catch (error) {
-        log('error', 'Error al confirmar reserva', error);
-        alert('❌ Error al confirmar: ' + (error.message || error));
-    }
+            } catch (error) {
+                log('error', 'Error al confirmar reserva', error);
+                alert('❌ Error al confirmar: ' + (error.message || error));
+            }
 }
 
 function filterDatabase() {
