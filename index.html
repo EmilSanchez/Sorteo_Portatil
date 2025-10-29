@@ -248,160 +248,166 @@
     </div>
 
     <!-- Modal Formulario Compra -->
-    <div id="purchaseModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 overflow-y-auto">
-        <div class="bg-[#071125] rounded-xl p-6 max-w-md w-full my-8">       
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold mb-2">Nombre completo *</label>
-                    <input type="text" id="inputName" required minlength="4" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white" placeholder="Mínimo 4 caracteres">
-                </div>
 
-                <div>
-                    <label class="block text-sm font-semibold mb-2">Correo electrónico *</label>
-                    <input type="email" id="inputEmail" required pattern=".+@.+" title="El correo debe contener @" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white" placeholder="usuario@ejemplo.com">
-                </div>
+    <!-- Modal Formulario Compra -->
+    <div id="purchaseModal" class="hidden fixed inset-0 bg-black/80 z-50 overflow-y-auto">
+        <div class="min-h-full flex items-center justify-center p-4 py-8">
+            <div class="bg-[#071125] rounded-xl p-6 max-w-md w-full my-8">   
+                <div class="space-y-4">
+                    <h1 class="text-green-500 font-bold text-center text-3xl">Comprar Boleta</h1>
+                    <hr>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Nombre completo *</label>
+                        <input type="text" id="inputName" required minlength="4" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white" placeholder="Mínimo 4 caracteres">
+                    </div>
 
-                <div>
-                    <label class="block text-sm font-semibold mb-2">Celular *</label>
-                    <input type="tel" id="inputPhone" required minlength="10" pattern="\d{10,}" oninput="this.value = this.value.replace(/\D/g,'')" placeholder="3001234567" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
-                    <p class="text-xs text-gray-300 mt-1">Mínimo 10 dígitos (solo números)</p>
-                </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Correo electrónico *</label>
+                        <input type="email" id="inputEmail" required pattern=".+@.+" title="El correo debe contener @" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white" placeholder="usuario@ejemplo.com">
+                    </div>
 
-                <div>
-                    <label class="block text-sm font-semibold mb-2">Dirección completa *</label>
-                    <input type="text" id="inputAddress" required placeholder="Calle, Carrera, Barrio, Ciudad" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
-                </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Celular *</label>
+                        <input type="tel" id="inputPhone" required minlength="10" pattern="\d{10,}" oninput="this.value = this.value.replace(/\D/g,'')" placeholder="3001234567" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
+                        <p class="text-xs text-gray-300 mt-1">Mínimo 10 dígitos (solo números)</p>
+                    </div>
 
-                <div>
-                    <label class="block text-sm font-semibold mb-2">Método de pago *</label>
-                    <select id="inputPayment" required onchange="updatePaymentInfo()" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
-                        <option value="" style="color: #000;">Seleccionar...</option>
-                        <option value="Nequi" style="color: #000;">Nequi</option>
-                        <option value="Llaves" style="color: #000;">Llaves</option>
-                        <option value="Efectivo" style="color: #000;">Efectivo</option>
-                        <option value="Otro" style="color: #000;">Otro</option>
-                    </select>
-                </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Dirección completa *</label>
+                        <input type="text" id="inputAddress" required placeholder="Calle, Carrera, Barrio, Ciudad" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
+                    </div>
 
-                <div id="paymentInfo" class="hidden mt-3 bg-white/5 border border-white/20 rounded-lg p-3 text-sm text-white">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <div class="methodLabel font-semibold">Nequi</div>
-                            <div class="mt-1">Número: <span id="paymentNumber" class="font-mono">3103535483</span></div>
-                            <div class="text-xs text-gray-300 mt-1">Puedes copiar el número para realizar el pago.</div>
-                        </div>
-                        <div class="flex flex-col gap-2 ml-4">
-                            <button onclick="copyPaymentNumber()" class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded-lg text-sm">
-                                Copiar número
-                            </button>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Método de pago *</label>
+                        <select id="inputPayment" required onchange="updatePaymentInfo()" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
+                            <option value="" style="color: #000;">Seleccionar...</option>
+                            <option value="Nequi" style="color: #000;">Nequi</option>
+                            <option value="Llaves" style="color: #000;">Llaves</option>
+                            <option value="Efectivo" style="color: #000;">Efectivo</option>
+                            <option value="Otro" style="color: #000;">Otro</option>
+                        </select>
+                    </div>
+
+                    <div id="paymentInfo" class="hidden mt-3 bg-white/5 border border-white/20 rounded-lg p-3 text-sm text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="methodLabel font-semibold">Nequi</div>
+                                <div class="mt-1">Número: <span id="paymentNumber" class="font-mono">3103535483</span></div>
+                                <div class="text-xs text-gray-300 mt-1">Puedes copiar el número para realizar el pago.</div>
+                            </div>
+                            <div class="flex flex-col gap-2 ml-4">
+                                <button onclick="copyPaymentNumber()" class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded-lg text-sm">
+                                    Copiar número
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <script>
-                (function () {
-                    function updatePaymentInfo() {
-                        const sel = (document.getElementById('inputPayment') || {}).value;
-                        const info = document.getElementById('paymentInfo');
-                        const numEl = document.getElementById('paymentNumber');
-                        const methodLabel = info?.querySelector('.methodLabel');
+                    <script>
+                    (function () {
+                        function updatePaymentInfo() {
+                            const sel = (document.getElementById('inputPayment') || {}).value;
+                            const info = document.getElementById('paymentInfo');
+                            const numEl = document.getElementById('paymentNumber');
+                            const methodLabel = info?.querySelector('.methodLabel');
 
-                        if (!info || !numEl) return;
+                            if (!info || !numEl) return;
 
-                        if (sel === 'Nequi' || sel === 'Llaves') {
-                            numEl.textContent = '3103535483';
-                            methodLabel.textContent = sel === 'Nequi' ? 'Nequi' : 'Llave';
-                            info.classList.remove('hidden');
-                        } else {
-                            info.classList.add('hidden');
+                            if (sel === 'Nequi' || sel === 'Llaves') {
+                                numEl.textContent = '3103535483';
+                                methodLabel.textContent = sel === 'Nequi' ? 'Nequi' : 'Llave';
+                                info.classList.remove('hidden');
+                            } else {
+                                info.classList.add('hidden');
+                            }
                         }
-                    }
 
-                    async function copyPaymentNumber() {
-                        const num = document.getElementById('paymentNumber').textContent.trim();
-                        if (!num) return alert('No hay número para copiar');
-                        try {
-                            await navigator.clipboard.writeText(num);
-                            alert('Número copiado: ' + num);
-                        } catch (e) {
-                            // Fallback
-                            const inp = document.createElement('input');
-                            inp.value = num;
-                            document.body.appendChild(inp);
-                            inp.select();
-                            document.execCommand('copy');
-                            inp.remove();
-                            alert('Número copiado: ' + num);
+                        async function copyPaymentNumber() {
+                            const num = document.getElementById('paymentNumber').textContent.trim();
+                            if (!num) return alert('No hay número para copiar');
+                            try {
+                                await navigator.clipboard.writeText(num);
+                                alert('Número copiado: ' + num);
+                            } catch (e) {
+                                // Fallback
+                                const inp = document.createElement('input');
+                                inp.value = num;
+                                document.body.appendChild(inp);
+                                inp.select();
+                                document.execCommand('copy');
+                                inp.remove();
+                                alert('Número copiado: ' + num);
+                            }
                         }
-                    }
 
-                    window.updatePaymentInfo = updatePaymentInfo;
-                    window.copyPaymentNumber = copyPaymentNumber;
+                        window.updatePaymentInfo = updatePaymentInfo;
+                        window.copyPaymentNumber = copyPaymentNumber;
 
-                    // Si el select ya tiene valor (p. ej. edición), actualizar la vista al cargar
-                    document.addEventListener('DOMContentLoaded', updatePaymentInfo);
-                })();
-                </script>
+                        // Si el select ya tiene valor (p. ej. edición), actualizar la vista al cargar
+                        document.addEventListener('DOMContentLoaded', updatePaymentInfo);
+                    })();
+                    </script>
 
-                <div>
-                    <label class="block text-sm font-semibold mb-2">Monto para apartar(mínimo $5.000) *</label>
-                    <input type="number" id="inputAmount" required min="5000" max="30000" value="5000" step="1000" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
-                    <p class="text-xs text-gray-300 mt-1">Valor total: $30.000</p>
-                </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Monto para apartar(mínimo $5.000) *</label>
+                        <input type="number" id="inputAmount" required min="5000" max="30000" value="5000" step="1000" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
+                        <p class="text-xs text-gray-300 mt-1">Valor total: $30.000</p>
+                    </div>
 
-                <script>
-                (function(){
-                    function validatePurchaseFields(){
-                        const name = (document.getElementById('inputName')?.value || '').trim();
-                        const email = (document.getElementById('inputEmail')?.value || '').trim();
-                        const phone = (document.getElementById('inputPhone')?.value || '').replace(/\D/g,'').trim();
+                    <script>
+                    (function(){
+                        function validatePurchaseFields(){
+                            const name = (document.getElementById('inputName')?.value || '').trim();
+                            const email = (document.getElementById('inputEmail')?.value || '').trim();
+                            const phone = (document.getElementById('inputPhone')?.value || '').replace(/\D/g,'').trim();
 
-                        if (name.length < 4) {
-                            alert('❌ El nombre debe tener al menos 4 caracteres');
-                            document.getElementById('inputName').focus();
-                            return false;
+                            if (name.length < 4) {
+                                alert('❌ El nombre debe tener al menos 4 caracteres');
+                                document.getElementById('inputName').focus();
+                                return false;
+                            }
+                            if (!email.includes('@')) {
+                                alert('❌ El correo debe contener "@"');
+                                document.getElementById('inputEmail').focus();
+                                return false;
+                            }
+                            if (phone.length < 10) {
+                                alert('❌ El celular debe tener al menos 10 dígitos');
+                                document.getElementById('inputPhone').focus();
+                                return false;
+                            }
+                            return true;
                         }
-                        if (!email.includes('@')) {
-                            alert('❌ El correo debe contener "@"');
-                            document.getElementById('inputEmail').focus();
-                            return false;
-                        }
-                        if (phone.length < 10) {
-                            alert('❌ El celular debe tener al menos 10 dígitos');
-                            document.getElementById('inputPhone').focus();
-                            return false;
-                        }
-                        return true;
-                    }
 
-                    // Interceptar clicks al botón Comprar (inline onclick="submitPurchase()") en etapa de captura
-                    document.addEventListener('click', function(e){
-                        const btn = e.target.closest('button[onclick="submitPurchase()"]');
-                        if (!btn) return;
-                        if (!validatePurchaseFields()){
-                            e.stopImmediatePropagation();
-                            e.preventDefault();
-                        }
-                    }, true);
-                })();
-                </script>
+                        // Interceptar clicks al botón Comprar (inline onclick="submitPurchase()") en etapa de captura
+                        document.addEventListener('click', function(e){
+                            const btn = e.target.closest('button[onclick="submitPurchase()"]');
+                            if (!btn) return;
+                            if (!validatePurchaseFields()){
+                                e.stopImmediatePropagation();
+                                e.preventDefault();
+                            }
+                        }, true);
+                    })();
+                    </script>
 
-                <div class="bg-yellow-400/20 border border-yellow-400 rounded-lg p-4">
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" id="inputTerms" required class="mt-1 w-5 h-5">
-                        <span class="text-sm">
-                            Acepto los términos. Recibiré mis números por correo. Las Bendiciones son semanales + final.
-                        </span>
-                    </label>
-                </div>
+                    <div class="bg-yellow-400/20 border border-yellow-400 rounded-lg p-4">
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" id="inputTerms" required class="mt-1 w-5 h-5">
+                            <span class="text-sm">
+                                Acepto los términos. Recibiré mis números por correo. Las Bendiciones son semanales + final.
+                            </span>
+                        </label>
+                    </div>
 
-                <div class="flex gap-3 flex-col sm:flex-row">
-                    <button onclick="closePurchaseForm()" class="w-full sm:flex-1 bg-gray-600 hover:bg-gray-500 py-3 rounded-lg font-semibold">
-                        Cancelar
-                    </button>
-                    <button onclick="submitPurchase()" class="w-full sm:flex-1 bg-green-600 hover:bg-green-500 py-3 rounded-lg font-semibold">
-                        Comprar
-                    </button>
+                    <div class="flex gap-3 flex-col sm:flex-row">
+                        <button onclick="closePurchaseForm()" class="w-full sm:flex-1 bg-gray-600 hover:bg-gray-500 py-3 rounded-lg font-semibold">
+                            Cancelar
+                        </button>
+                        <button onclick="submitPurchase()" class="w-full sm:flex-1 bg-green-600 hover:bg-green-500 py-3 rounded-lg font-semibold">
+                            Comprar
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
