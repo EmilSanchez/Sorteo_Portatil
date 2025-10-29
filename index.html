@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bendiciones Universitaria</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     
     
@@ -28,6 +30,7 @@
         .ticket-card { transition: all 0.3s ease; }
         .ticket-card:hover:not(:disabled) { transform: scale(1.05); }
     </style>
+    
 </head>
 <body class="text-white">
     
@@ -247,39 +250,39 @@
         </button>
     </div>
 
-    <!-- Modal Formulario Compra -->
-
-    <!-- Modal Formulario Compra -->
-    <div id="purchaseModal" class="hidden fixed inset-0 bg-black/80 z-50 overflow-y-auto">
-        <div class="min-h-full flex items-center justify-center p-4 py-8">
-            <div class="bg-[#071125] rounded-xl p-6 max-w-md w-full my-8">   
-                <div class="space-y-4">
-                    <h1 class="text-green-500 font-bold text-center text-3xl">Comprar Boleta</h1>
-                    <hr>
+    <!-- Modal Formulario Compra (Bootstrap) -->
+    <div class="modal fade" id="purchaseModal" tabindex="-1" aria-labelledby="purchaseModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content bg-[#071125] ">
+                <div class="modal-header ">
+                    <h1 class="modal-title text-green-500 font-bold text-center text-3xl w-100" id="purchaseModalLabel">Comprar Boleta</h1>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
                     <div>
                         <label class="block text-sm font-semibold mb-2">Nombre completo *</label>
-                        <input type="text" id="inputName" required minlength="4" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white" placeholder="Mínimo 4 caracteres">
+                        <input type="text" id="inputName" required minlength="4" class="w-full px-4 py-2 rounded-lg bg-gray-700 focus:border-yellow-400 focus:outline-none text-white" placeholder="Mínimo 4 caracteres">
                     </div>
 
                     <div>
                         <label class="block text-sm font-semibold mb-2">Correo electrónico *</label>
-                        <input type="email" id="inputEmail" required pattern=".+@.+" title="El correo debe contener @" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white" placeholder="usuario@ejemplo.com">
+                        <input type="email" id="inputEmail" required pattern=".+@.+" title="El correo debe contener @" class="w-full px-4 py-2 rounded-lg bg-gray-700 focus:border-yellow-400 focus:outline-none text-white" placeholder="usuario@ejemplo.com">
                     </div>
 
                     <div>
                         <label class="block text-sm font-semibold mb-2">Celular *</label>
-                        <input type="tel" id="inputPhone" required minlength="10" pattern="\d{10,}" oninput="this.value = this.value.replace(/\D/g,'')" placeholder="3001234567" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
+                        <input type="tel" id="inputPhone" required minlength="10" pattern="\d{10,}" oninput="this.value = this.value.replace(/\D/g,'')" placeholder="3001234567" class="w-full px-4 py-2 rounded-lg bg-gray-700 focus:border-yellow-400 focus:outline-none text-white">
                         <p class="text-xs text-gray-300 mt-1">Mínimo 10 dígitos (solo números)</p>
                     </div>
 
                     <div>
                         <label class="block text-sm font-semibold mb-2">Dirección completa *</label>
-                        <input type="text" id="inputAddress" required placeholder="Calle, Carrera, Barrio, Ciudad" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
+                        <input type="text" id="inputAddress" required placeholder="Calle, Carrera, Barrio, Ciudad" class="w-full px-4 py-2 rounded-lg bg-gray-700 focus:border-yellow-400 focus:outline-none text-white">
                     </div>
 
                     <div>
                         <label class="block text-sm font-semibold mb-2">Método de pago *</label>
-                        <select id="inputPayment" required onchange="updatePaymentInfo()" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
+                        <select id="inputPayment" required onchange="updatePaymentInfo()" class="w-full px-4 py-2 rounded-lg bg-white/20 focus:border-yellow-400 focus:outline-none text-white">
                             <option value="" style="color: #000;">Seleccionar...</option>
                             <option value="Nequi" style="color: #000;">Nequi</option>
                             <option value="Llaves" style="color: #000;">Llaves</option>
@@ -350,8 +353,8 @@
 
                     <div>
                         <label class="block text-sm font-semibold mb-2">Monto para apartar(mínimo $5.000) *</label>
-                        <input type="number" id="inputAmount" required min="5000" max="30000" value="5000" step="1000" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:border-yellow-400 focus:outline-none text-white">
-                        <p class="text-xs text-gray-300 mt-1">Valor total: $30.000</p>
+                        <input type="number" id="inputAmount" required min="5000" max="30000" value="5000" step="1000" class="w-full px-4 py-2 rounded-lg bg-gray-700 focus:border-yellow-400 focus:outline-none text-white">
+                        <p class="text-xs text-gray-300 mt-1 mb-2">Valor total: $30.000</p>
                     </div>
 
                     <script>
@@ -391,62 +394,27 @@
                     })();
                     </script>
 
-                    <div class="bg-yellow-400/20 border border-yellow-400 rounded-lg p-4">
+                    <div class="bg-gray-700 rounded-lg p-2 mb-3">
                         <label class="flex items-start gap-3 cursor-pointer">
-                            <input type="checkbox" id="inputTerms" required class="mt-1 w-5 h-5">
+                            <input type="checkbox" id="inputTerms" required class="mt-1 w-3 h-3">
                             <span class="text-sm">
-                                Acepto los términos. Recibiré mis números por correo. Las Bendiciones son semanales + final.
+                                Acepto los términos.
                             </span>
                         </label>
                     </div>
 
                     <div class="flex gap-3 flex-col sm:flex-row">
-                        <button onclick="closePurchaseForm()" class="w-full sm:flex-1 bg-gray-600 hover:bg-gray-500 py-3 rounded-lg font-semibold">
+                        <button type="button" class="w-full sm:flex-1 bg-gray-600 hover:bg-gray-500 py-3 rounded-lg font-semibold" data-bs-dismiss="modal">
                             Cancelar
                         </button>
                         <button onclick="submitPurchase()" class="w-full sm:flex-1 bg-green-600 hover:bg-green-500 py-3 rounded-lg font-semibold">
                             Comprar
                         </button>
-                    </div>
+                    </div>                   
                 </div>
             </div>
         </div>
     </div>
-
-    <script>
-    (function(){
-        // Evitar scroll del fondo mientras el modal esté abierto.
-        const modal = document.getElementById('purchaseModal');
-        if (!modal) return;
-
-        // Prevent touchmove for mobile when modal open
-        function preventTouch(e) { e.preventDefault(); }
-
-        const observer = new MutationObserver(() => {
-            const isVisible = !modal.classList.contains('hidden');
-            if (isVisible) {
-                // bloquear scroll en html/body
-                document.documentElement.style.overflow = 'hidden';
-                document.body.style.overflow = 'hidden';
-                // para iOS y touch
-                document.addEventListener('touchmove', preventTouch, { passive: false });
-            } else {
-                document.documentElement.style.overflow = '';
-                document.body.style.overflow = '';
-                document.removeEventListener('touchmove', preventTouch);
-            }
-        });
-
-        observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
-
-        // Por si el modal ya está visible al cargar
-        if (!modal.classList.contains('hidden')) {
-            document.documentElement.style.overflow = 'hidden';
-            document.body.style.overflow = 'hidden';
-            document.addEventListener('touchmove', preventTouch, { passive: false });
-        }
-    })();
-    </script>
 
     <!-- Modal Éxito -->
     <div id="successModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
@@ -931,11 +899,15 @@ updateCountdown();
    COMPRA DE BOLETAS
 ============================================ */
 function openPurchaseForm() {
-    document.getElementById('purchaseModal').classList.remove('hidden');
+    const purchaseModal = new bootstrap.Modal(document.getElementById('purchaseModal'));
+    purchaseModal.show();
 }
 
 function closePurchaseForm() {
-    document.getElementById('purchaseModal').classList.add('hidden');
+    const purchaseModal = bootstrap.Modal.getInstance(document.getElementById('purchaseModal'));
+    if (purchaseModal) {
+        purchaseModal.hide();
+    }
 }
 
 /* ============================================
@@ -966,6 +938,36 @@ async function submitPurchase() {
         alert(`❌ Monto debe estar entre ${MIN_PAYMENT.toLocaleString('es-CO')} y ${TICKET_PRICE.toLocaleString('es-CO')}`);
         return;
     }
+    
+    const btnComprar = document.querySelector('button[onclick="submitPurchase()"]');
+
+    if (btnComprar) {
+        btnComprar.disabled = true;
+        btnComprar.textContent = 'Procesando...';
+    }
+
+    // ✅ CERRAR EL MODAL DESPUÉS DE 2 SEGUNDOS
+    setTimeout(() => {
+        const modal = bootstrap.Modal.getInstance(document.getElementById('purchaseModal'));
+        if (modal) {
+            modal.hide();
+        }
+        
+        // Limpiar formulario
+        document.getElementById('inputName').value = '';
+        document.getElementById('inputEmail').value = '';
+        document.getElementById('inputPhone').value = '';
+        document.getElementById('inputAddress').value = '';
+        document.getElementById('inputPayment').value = '';
+        document.getElementById('inputAmount').value = '5000';
+        document.getElementById('inputTerms').checked = false;
+        
+        // Rehabilitar botón
+        if (btnComprar) {
+            btnComprar.disabled = false;
+            btnComprar.textContent = 'Comprar';
+        }
+    }, 2000);
     
     try {
         // ✅ CORREGIDO: Generar número de boleta (buscar el más alto y sumar 1)
@@ -1028,12 +1030,6 @@ async function submitPurchase() {
             payment,
             eligibleWeeks
         };
-        
-        // Mostrar modal éxito
-        document.getElementById('successTicketNum').textContent = ticketNumber;
-        document.getElementById('successAmount').textContent = amount.toLocaleString('es-CO');
-        document.getElementById('successPending').textContent = pending.toLocaleString('es-CO');
-        document.getElementById('successModal').classList.remove('hidden');
 
         // Enviar correo
         await sendEmail({
@@ -1049,6 +1045,12 @@ async function submitPurchase() {
             week1_threshold: eligibilityThresholds.week1.toLocaleString('es-CO'),
             week1_cutoff: weeklyCutoffs.week1.toLocaleDateString('es-CO')
         });
+
+        // Mostrar modal éxito
+        document.getElementById('successTicketNum').textContent = ticketNumber;
+        document.getElementById('successAmount').textContent = amount.toLocaleString('es-CO');
+        document.getElementById('successPending').textContent = pending.toLocaleString('es-CO');
+        document.getElementById('successModal').classList.remove('hidden');
 
         // ✅ Enfocar el botón de WhatsApp para facilitar el clic
         setTimeout(() => {
@@ -1070,25 +1072,19 @@ async function submitPurchase() {
         // Cerrar modal después de 15 segundos adicionales
         setTimeout(() => {
             document.getElementById('successModal').classList.add('hidden');
-            closePurchaseForm();
-            
-            // Limpiar form
-            document.getElementById('inputName').value = '';
-            document.getElementById('inputEmail').value = '';
-            document.getElementById('inputPhone').value = '';
-            document.getElementById('inputAddress').value = '';
-            document.getElementById('inputPayment').value = '';
-            document.getElementById('inputAmount').value = '5000';
-            document.getElementById('inputTerms').checked = false;
         }, 15000);
         
     } catch (error) {
         log('error', 'Error en compra', error);
         alert('❌ Error al procesar la compra: ' + error.message);
+        
+        // En caso de error, asegurarse de rehabilitar el botón
+        if (btnComprar) {
+            btnComprar.disabled = false;
+            btnComprar.textContent = 'Comprar';
+        }
     }
 }
-
-
 
 /* ============================================
    ✅ CORRECCIÓN 5: openWhatsAppManual arreglado
@@ -1963,6 +1959,7 @@ window.confirmReservation = confirmReservation;
 checkAdminAccess();
 
 </script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
