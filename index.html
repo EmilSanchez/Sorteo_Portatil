@@ -180,7 +180,7 @@
                             <div class="bg-white/10 rounded-lg p-4 flex-1">
                                 <p class="text-sm text-gray-300">Valor boleta</p>
                                 <p class="text-2xl font-bold">$30.000</p>
-                                <p class="text-xs text-yellow-300 mt-1">Aparta desde $5.000</p>
+                                <p class="text-xs text-yellow-300 mt-1">Aparta desde $0!</p>
                             </div>
                             <div class="bg-white/10 rounded-lg p-4 flex-1">
                                 <p class="text-sm text-gray-300">Boletas vendidas</p>
@@ -355,7 +355,7 @@
 
                     <div>
                         <label class="block text-sm font-semibold mb-2">Monto para apartar(mínimo $5.000) *</label>
-                        <input type="number" id="inputAmount" required min="5000" max="30000" value="5000" step="1000" class="w-full px-4 py-2 rounded-lg bg-gray-700 focus:border-yellow-400 focus:outline-none text-white">
+                        <input type="number" id="inputAmount" required min="0" max="30000" value="0" step="1000" class="w-full px-4 py-2 rounded-lg bg-gray-700 focus:border-yellow-400 focus:outline-none text-white">
                         <p class="text-xs text-gray-300 mt-1 mb-2">Valor total: $30.000</p>
                     </div>
 
@@ -794,7 +794,7 @@ const EMAILJS_CONFIG = {
 
 // 💰 CONFIGURACIÓN DE PRECIOS Y ELEGIBILIDAD
 const TICKET_PRICE = 30000;
-const MIN_PAYMENT = 5000;
+const MIN_PAYMENT = 0;
 const eligibilityThresholds = {
     week1: 15000,
     week2: 15000,
@@ -1141,7 +1141,7 @@ async function submitPurchase() {
         document.getElementById('inputPhone').value = '';
         document.getElementById('inputAddress').value = '';
         document.getElementById('inputPayment').value = '';
-        document.getElementById('inputAmount').value = '5000';
+        document.getElementById('inputAmount').value = '0';
         document.getElementById('inputTerms').checked = false;
         
         // Rehabilitar botón
@@ -1978,7 +1978,7 @@ async function registerManualPayment() {
 }
 
 async function registerManualPaymentFor(ticketNumber) {
-    const amount = prompt(`Ingresa el monto del abono para la Boleta #${ticketNumber}:`, '5000');
+    const amount = prompt(`Ingresa el monto del abono para la Boleta #${ticketNumber}:`, '0');
     if (!amount) return;
     
     const parsedAmount = parseInt(amount);
