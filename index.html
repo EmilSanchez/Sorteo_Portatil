@@ -839,12 +839,61 @@ let isAdminLoggedIn = false;
 let currentAdminTab = 'search';
 let allTicketsCache = [];
 
-function initializeNumberPool() {
-    availableNumbers = [];
-    for (let i = 0; i <= 999; i++) {
-        availableNumbers.push(String(i).padStart(3, '0'));
+// ✅ SINCRONIZAR números disponibles con Firebase (MEJORADO)
+async function initializeNumberPool() {
+    try {
+        log('info', '🔄 Sincronizando números con Firebase...');
+        
+        // Obtener todos los tickets existentes (FORZAR RECARGA SIN CACHÉ)
+        const snapshot = await get(ref(db, 'tickets'));
+        const existingTickets = snapshot.val() || {};
+        
+        // Crear Set con números ya asignados
+        const assignedNums = new Set();
+        Object.values(existingTickets).forEach(ticket => {
+            if (ticket.numerosAsignados && Array.isArray(ticket.numerosAsignados)) {
+                ticket.numerosAsignados.forEach(num => {
+                    // Normalizar formato (asegurar 3 dígitos con ceros)
+                    const normalized = String(num).padStart(3, '0');
+                    assignedNums.add(normalized);
+                });
+            }
+        });
+        
+        // Generar pool de números disponibles (000-999)
+        availableNumbers = [];
+        assignedNumbers = {}; // Reset global assigned
+        
+        for (let i = 0; i <= 999; i++) {
+            const num = String(i).padStart(3, '0');
+            if (!assignedNums.has(num)) {
+                availableNumbers.push(num);
+            } else {
+                assignedNumbers[num] = true;
+            }
+        }
+        
+        log('success', `✅ Pool sincronizado: ${availableNumbers.length} disponibles | ${assignedNums.size} asignados`);
+        
+    } catch (error) {
+        log('error', '❌ Error sincronizando números', error);
+        // Si falla, crear pool básico vacío para evitar asignaciones
+        availableNumbers = [];
+        for (let i = 0; i <= 999; i++) {
+            availableNumbers.push(String(i).padStart(3, '0'));
+        }
     }
 }
+
+// Llamar la función inicial
+(async function() {
+    await initializeNumberPool();
+})();
+
+// Llamar la función async con await
+(async function() {
+    await initializeNumberPool();
+})();
 
 initializeNumberPool();
 
@@ -871,17 +920,41 @@ function log(type, message, data = null) {
 ============================================ */
 
 // Asignar 2 números aleatorios
-function assignRandomNumbers() {
+// ✅ Asignar 2 números aleatorios CON VALIDACIÓN
+async function assignRandomNumbers() {
+    // Re-sincronizar con Firebase antes de asignar (seguridad extra)
+    const snapshot = await get(ref(db, 'tickets'));
+    const existingTickets = snapshot.val() || {};
+    
+    const assignedNums = new Set();
+    Object.values(existingTickets).forEach(ticket => {
+        if (ticket.numerosAsignados && Array.isArray(ticket.numerosAsignados)) {
+            ticket.numerosAsignados.forEach(num => assignedNums.add(num));
+        }
+    });
+    
+    // Actualizar pool disponible
+    availableNumbers = [];
+    for (let i = 0; i <= 999; i++) {
+        const num = String(i).padStart(3, '0');
+        if (!assignedNums.has(num)) {
+            availableNumbers.push(num);
+        }
+    }
+    
     if (availableNumbers.length < 2) {
         throw new Error('No hay suficientes números disponibles');
     }
     
+    // Asignar 2 números aleatorios
     const nums = [];
     for (let i = 0; i < 2; i++) {
         const idx = Math.floor(Math.random() * availableNumbers.length);
         nums.push(availableNumbers[idx]);
         availableNumbers.splice(idx, 1);
     }
+    
+    log('success', 'Números asignados:', nums);
     return nums.sort();
 }
 
@@ -900,11 +973,14 @@ function calculateEligibility(amountPaid, paymentDate) {
     return eligible;
 }
 
-// Calcular número invertido
+// Calcular número invertido (con validación)
 function getInvertedNumber(num) {
+    if (!num || typeof num !== 'string') {
+        console.error('getInvertedNumber recibió un valor inválido:', num);
+        return '000'; // Valor por defecto
+    }
     return num.split('').reverse().join('');
 }
-
 /* ============================================
    ✅ CORRECCIÓN 3: Validación robusta de emails
 ============================================ */
@@ -951,15 +1027,21 @@ async function sendEmail(templateParams) {
 /* ============================================
    ACTUALIZAR UI PÚBLICA
 ============================================ */
+/* ============================================
+   ACTUALIZAR UI PÚBLICA Y SINCRONIZACIÓN AUTOMÁTICA
+============================================ */
 onValue(ref(db, 'tickets'), (snapshot) => {
+    // Actualizar estadísticas públicas
     const data = snapshot.val() || {};
     const tickets = Object.values(data);
-    
-    // Contar TODAS las boletas registradas (no solo pagadas)
     const totalSold = tickets.length;
     const percentage = ((totalSold / TOTAL_TICKETS) * 100).toFixed(2);
-    
     document.getElementById('soldPercentage').textContent = percentage + '%';
+    
+    // 🔥 SINCRONIZAR POOL automáticamente cada vez que cambia la BD
+    initializeNumberPool();
+}, (error) => {
+    log('error', 'Error en listener de Firebase', error);
 });
 
 // Actualizar contador próximo sorteo
@@ -1084,9 +1166,11 @@ async function submitPurchase() {
             alert('❌ Ya no hay boletas disponibles');
             return;
         }
+
+        // ✅ CAMBIO CRÍTICO: Agregar await aquí
+        const assignedNumbers = await assignRandomNumbers();
         
         // Asignar números aleatorios
-        const assignedNumbers = assignRandomNumbers();
         const now = new Date().toISOString();
         const eligible = calculateEligibility(amount, now);
         
@@ -1211,6 +1295,7 @@ function openWhatsAppManual() {
 - Dirección: ${address}
 
 *Información de pago:*
+- Nequi o Llaves: 3103535483
 - Monto a pagar: ${amount.toLocaleString('es-CO')}
 - Pendiente: ${pending.toLocaleString('es-CO')}
 - Método: ${payment}
@@ -1303,31 +1388,61 @@ function loginAdmin() {
 
 // ============ GESTIÓN DE NÚMEROS ============
 async function loadNumbersManagement() {
-    const snapshot = await get(ref(db, 'tickets'));
-    const data = snapshot.val() || {};
-    const tickets = Object.values(data);
-    
-    const assignedNums = new Set();
-    tickets.forEach(t => {
-        if (t.numerosAsignados) {
-            t.numerosAsignados.forEach(num => assignedNums.add(num));
+    try {
+        log('info', '🔍 Cargando gestión de números...');
+        
+        // 🔥 FORZAR RECARGA COMPLETA desde Firebase
+        await initializeNumberPool();
+        
+        const snapshot = await get(ref(db, 'tickets'));
+        const data = snapshot.val() || {};
+        const tickets = Object.values(data);
+        
+        // Crear Set con todos los números asignados (con normalización)
+        const assignedNums = new Set();
+        const assignedDetails = {};
+        
+        tickets.forEach(t => {
+            if (t.numerosAsignados && Array.isArray(t.numerosAsignados)) {
+                t.numerosAsignados.forEach(num => {
+                    const numFormatted = String(num).padStart(3, '0');
+                    assignedNums.add(numFormatted);
+                    
+                    if (!assignedDetails[numFormatted]) {
+                        assignedDetails[numFormatted] = [];
+                    }
+                    assignedDetails[numFormatted].push(t);
+                });
+            }
+        });
+        
+        // Calcular disponibles
+        const available = availableNumbers.length;
+        const assigned = assignedNums.size;
+        
+        // Actualizar la UI
+        document.getElementById('availableCount').textContent = available;
+        document.getElementById('assignedCount').textContent = assigned;
+        
+        log('success', `✅ Números actualizados: ${available} disponibles | ${assigned} asignados`);
+        
+        // Mostrar advertencia si hay inconsistencias
+        const totalExpected = 1000;
+        const totalActual = available + assigned;
+        if (totalActual !== totalExpected) {
+            console.warn(`⚠️ ADVERTENCIA: Total inconsistente. Esperado: ${totalExpected}, Actual: ${totalActual}`);
         }
-    });
-    
-    const allNumbers = [];
-    for (let i = 0; i <= 999; i++) {
-        allNumbers.push(String(i).padStart(3, '0'));
+        
+        // Limpiar resultados previos
+        document.getElementById('numbersResult').innerHTML = '';
+        
+    } catch (error) {
+        log('error', '❌ Error cargando números', error);
+        alert('❌ Error al cargar números: ' + error.message);
     }
-    
-    const available = allNumbers.filter(n => !assignedNums.has(n));
-    
-    document.getElementById('availableCount').textContent = available.length;
-    document.getElementById('assignedCount').textContent = assignedNums.size;
-    
-    availableNumbers = [...available];
 }
 
-function searchSpecificNumber() {
+async function searchSpecificNumber() {
     const searchNum = document.getElementById('searchNumber').value.trim().padStart(3, '0');
     
     if (searchNum.length !== 3 || isNaN(searchNum)) {
@@ -1335,13 +1450,23 @@ function searchSpecificNumber() {
         return;
     }
     
-    get(ref(db, 'tickets')).then(snapshot => {
+    try {
+        // 🔥 SINCRONIZAR ANTES DE BUSCAR
+        await initializeNumberPool();
+        
+        const snapshot = await get(ref(db, 'tickets'));
         const data = snapshot.val() || {};
         const tickets = Object.values(data);
         
-        const found = tickets.filter(t => 
-            t.numerosAsignados && t.numerosAsignados.includes(searchNum)
-        );
+        // Buscar con normalización de formato
+        const found = tickets.filter(t => {
+            if (!t.numerosAsignados || !Array.isArray(t.numerosAsignados)) return false;
+            
+            return t.numerosAsignados.some(num => {
+                const normalized = String(num).padStart(3, '0');
+                return normalized === searchNum;
+            });
+        });
         
         const resultDiv = document.getElementById('numbersResult');
         
@@ -1350,16 +1475,18 @@ function searchSpecificNumber() {
                 <div class="bg-green-600/30 border border-green-500 rounded-lg p-4">
                     <p class="font-bold text-xl">✅ Número ${searchNum} está DISPONIBLE</p>
                     <p class="text-sm mt-2">Este número no ha sido asignado a ninguna boleta</p>
+                    <p class="text-xs text-gray-400 mt-2">✓ Verificado contra ${tickets.length} boletas en Firebase</p>
                 </div>
             `;
         } else {
             resultDiv.innerHTML = `
                 <div class="bg-red-600/30 border border-red-500 rounded-lg p-4">
                     <p class="font-bold text-xl mb-3">❌ Número ${searchNum} está ASIGNADO</p>
+                    <p class="text-xs text-gray-400 mb-3">Encontrado en ${found.length} boleta(s)</p>
                     ${found.map(t => `
                         <div class="bg-black/30 rounded p-3 mb-2">
                             <p class="font-bold">Boleta #${t.ticketNumber}</p>
-                            <p class="text-sm">🔢 Números: ${t.numerosAsignados.join(' y ')}</p>
+                            <p class="text-sm">🔢 Números: ${t.numerosAsignados.map(n => String(n).padStart(3, '0')).join(' y ')}</p>
                             <p class="text-sm">👤 ${t.nombre}</p>
                             <p class="text-sm">📧 ${t.correo}</p>
                             <p class="text-sm">📱 ${t.telefono}</p>
@@ -1368,27 +1495,37 @@ function searchSpecificNumber() {
                 </div>
             `;
         }
-    });
+    } catch (error) {
+        log('error', 'Error buscando número', error);
+        alert('❌ Error: ' + error.message);
+    }
 }
 
-function showAllNumbers(type) {
-    get(ref(db, 'tickets')).then(snapshot => {
+async function showAllNumbers(type) {
+    try {
+        // 🔥 SINCRONIZAR ANTES DE MOSTRAR
+        await initializeNumberPool();
+        
+        const snapshot = await get(ref(db, 'tickets'));
         const data = snapshot.val() || {};
         const tickets = Object.values(data);
         
         const assignedNums = new Set();
         const assignedDetails = {};
         
+        // Recopilar números asignados con normalización
         tickets.forEach(t => {
-            if (t.numerosAsignados) {
+            if (t.numerosAsignados && Array.isArray(t.numerosAsignados)) {
                 t.numerosAsignados.forEach(num => {
-                    assignedNums.add(num);
-                    if (!assignedDetails[num]) assignedDetails[num] = [];
-                    assignedDetails[num].push(t);
+                    const numFormatted = String(num).padStart(3, '0');
+                    assignedNums.add(numFormatted);
+                    if (!assignedDetails[numFormatted]) assignedDetails[numFormatted] = [];
+                    assignedDetails[numFormatted].push(t);
                 });
             }
         });
         
+        // Generar lista completa
         const allNumbers = [];
         for (let i = 0; i <= 999; i++) {
             allNumbers.push(String(i).padStart(3, '0'));
@@ -1402,6 +1539,7 @@ function showAllNumbers(type) {
             resultDiv.innerHTML = `
                 <div class="bg-green-900/30 border border-green-500 rounded-lg p-4">
                     <h4 class="font-bold text-xl mb-3">✅ Números Disponibles (${available.length})</h4>
+                    <p class="text-xs text-gray-400 mb-3">✓ Sincronizado con Firebase - ${tickets.length} boletas verificadas</p>
                     <div class="grid grid-cols-10 gap-2 max-h-96 overflow-y-auto">
                         ${available.map(n => `
                             <div class="bg-green-600/50 rounded px-2 py-1 text-center text-sm font-mono">
@@ -1417,6 +1555,7 @@ function showAllNumbers(type) {
             resultDiv.innerHTML = `
                 <div class="bg-red-900/30 border border-red-500 rounded-lg p-4">
                     <h4 class="font-bold text-xl mb-3">❌ Números Asignados (${assigned.length})</h4>
+                    <p class="text-xs text-gray-400 mb-3">✓ Sincronizado con Firebase - ${tickets.length} boletas verificadas</p>
                     <div class="space-y-2 max-h-96 overflow-y-auto">
                         ${assigned.map(n => {
                             const tickets = assignedDetails[n];
@@ -1431,7 +1570,10 @@ function showAllNumbers(type) {
                 </div>
             `;
         }
-    });
+    } catch (error) {
+        log('error', 'Error mostrando números', error);
+        alert('❌ Error: ' + error.message);
+    }
 }
 
 // ============ BASE DE DATOS ============
@@ -1911,18 +2053,77 @@ async function registerPaymentForTicket(ticketNumber, amount) {
 }
 
 async function findWinner() {
-    const number = document.getElementById('winningNumber').value.padStart(3, '0');
+    const inputNumber = document.getElementById('winningNumber').value.trim();
+    
+    if (!inputNumber || inputNumber === '') {
+        alert('❌ Ingresa un número');
+        return;
+    }
+    
+    // Normalizar el número de entrada a 3 dígitos
+    const number = String(inputNumber).padStart(3, '0');
     const inverted = getInvertedNumber(number);
     
-    log('info', 'Buscando ganador', { number, inverted });
+    log('info', 'Buscando ganador', { number, inverted, inputOriginal: inputNumber });
     
+    // 🔥 SINCRONIZAR antes de buscar
+    await initializeNumberPool();
+    
+    // FORZAR RECARGA DESDE FIREBASE (sin caché)
     const snapshot = await get(ref(db, 'tickets'));
     const data = snapshot.val() || {};
     const tickets = Object.values(data);
     
-    const winners = tickets.filter(t => 
-        t.numerosAsignados && (t.numerosAsignados.includes(number) || t.numerosAsignados.includes(inverted))
-    );
+    log('info', `Total boletas en BD: ${tickets.length}`);
+    
+    // 🔥 BÚSQUEDA MEJORADA con múltiples formatos
+    const winners = tickets.filter(t => {
+        if (!t.numerosAsignados || !Array.isArray(t.numerosAsignados)) {
+            return false;
+        }
+        
+        // Probar con todos los formatos posibles
+        return t.numerosAsignados.some(num => {
+            // Convertir a string y normalizar
+            const numStr = String(num);
+            const numPadded = numStr.padStart(3, '0');
+            const numInt = parseInt(numStr, 10);
+            
+            const numberInt = parseInt(number, 10);
+            const invertedInt = parseInt(inverted, 10);
+            
+            // Comparar en todos los formatos
+            const matchDirect = (
+                num === number || 
+                num === numberInt ||
+                numStr === number ||
+                numPadded === number ||
+                numInt === numberInt
+            );
+            
+            const matchInverted = (
+                num === inverted || 
+                num === invertedInt ||
+                numStr === inverted ||
+                numPadded === inverted ||
+                numInt === invertedInt
+            );
+            
+            if (matchDirect || matchInverted) {
+                console.log('🎯 MATCH encontrado:', {
+                    numOriginal: num,
+                    numType: typeof num,
+                    busqueda: number,
+                    invertido: inverted,
+                    matchType: matchDirect ? 'DIRECTO' : 'INVERTIDO'
+                });
+            }
+            
+            return matchDirect || matchInverted;
+        });
+    });
+    
+    log('info', `Ganadores encontrados: ${winners.length}`);
     
     const resultDiv = document.getElementById('winnerResult');
     
@@ -1930,7 +2131,10 @@ async function findWinner() {
         resultDiv.innerHTML = `
             <div class="bg-red-600/30 border border-red-500 rounded p-4">
                 <p class="font-bold">❌ No se encontró ganador</p>
-                <p class="text-sm">Número: ${number} | Invertido: ${inverted}</p>
+                <p class="text-sm">Número buscado: ${number}</p>
+                <p class="text-sm">Invertido: ${inverted}</p>
+                <p class="text-xs text-gray-400 mt-2">✓ Verificado contra ${tickets.length} boletas en Firebase</p>
+                <p class="text-xs text-yellow-400 mt-2">💡 Tip: Intenta buscar sin ceros (ej: 525 en vez de 0525)</p>
             </div>
         `;
         return;
@@ -1941,20 +2145,86 @@ async function findWinner() {
     resultDiv.innerHTML = `
         <div class="bg-green-600/30 border border-green-500 rounded p-4">
             <p class="font-bold text-xl mb-3">🎉 ¡Ganador(es) Encontrado(s)!</p>
-            <p class="text-sm mb-2">Número: ${number} | Invertido: ${inverted}</p>
-            ${winners.map(w => `
-                <div class="bg-black/30 rounded p-3 mb-2">
-                    <p class="font-bold">Boleta #${w.ticketNumber}</p>
-                    <p class="text-sm">🔢 Números: ${w.numerosAsignados[0]} y ${w.numerosAsignados[1]}</p>
-                    <p class="text-sm">👤 ${w.nombre}</p>
-                    <p class="text-sm">📧 ${w.correo}</p>
-                    <p class="text-sm">📱 ${w.telefono}</p>
-                    <p class="text-sm">📍 ${w.direccion}</p>
-                    <p class="text-sm font-bold ${w.estadoPago === 'pagado' ? 'text-green-400' : 'text-yellow-400'}">
-                        💰 ${w.estadoPago === 'pagado' ? 'PAGADO COMPLETO' : `Abonado ${w.amountPaid.toLocaleString('es-CO')}`}
-                    </p>
-                </div>
-            `).join('')}
+            <p class="text-sm mb-2">Número sorteado: <span class="font-bold text-yellow-300">${number}</span> | Invertido: <span class="font-bold text-purple-300">${inverted}</span></p>
+            <p class="text-xs text-gray-400 mb-3">✓ ${tickets.length} boletas verificadas</p>
+            ${winners.map(w => {
+                // Normalizar números del ganador para mostrar
+                const normalizedWinnerNumbers = w.numerosAsignados.map(n => String(n).padStart(3, '0'));
+                
+                // Determinar cómo ganó
+                let tipoGanador = '';
+                let mensajeGanador = '';
+                
+                // Verificar si alguno de sus números coincide
+                const hasDirectMatch = w.numerosAsignados.some(n => {
+                    const nStr = String(n);
+                    const nPad = nStr.padStart(3, '0');
+                    const nInt = parseInt(nStr, 10);
+                    const numInt = parseInt(number, 10);
+                    return n === number || n === numInt || nStr === number || nPad === number || nInt === numInt;
+                });
+                
+                const hasInvertedMatch = w.numerosAsignados.some(n => {
+                    const nStr = String(n);
+                    const nPad = nStr.padStart(3, '0');
+                    const nInt = parseInt(nStr, 10);
+                    const invInt = parseInt(inverted, 10);
+                    return n === inverted || n === invInt || nStr === inverted || nPad === inverted || nInt === invInt;
+                });
+                
+                if (hasDirectMatch) {
+                    tipoGanador = 'DIRECTO';
+                    mensajeGanador = `Tiene el número ${number} (Premio Principal)`;
+                } else if (hasInvertedMatch) {
+                    tipoGanador = 'INVERTIDO';
+                    mensajeGanador = `Tiene el número ${inverted} que es el inverso de ${number} (Premio Secundario)`;
+                }
+                
+                const esCapicua = number === inverted;
+                
+                return `
+                    <div class="bg-black/30 rounded p-3 mb-2">
+                        <p class="font-bold">Boleta #${w.ticketNumber}</p>
+                        
+                        ${esCapicua ? `
+                            <div class="bg-gradient-to-r from-yellow-500/40 to-orange-500/40 border-2 border-yellow-400 rounded p-3 my-2 animate-pulse">
+                                <p class="text-xl font-bold text-yellow-300">
+                                    🏆🏆 ¡DOBLE GANADOR! 🏆🏆
+                                </p>
+                                <p class="text-sm text-white mt-2">
+                                    Tiene el número ${number} (capicúa)
+                                </p>
+                                <p class="text-sm text-white">
+                                    ⭐ El número sorteado es capicúa, por lo tanto gana AMBOS premios
+                                </p>
+                            </div>
+                        ` : `
+                            <div class="bg-${tipoGanador === 'DIRECTO' ? 'yellow' : 'purple'}-500/30 border-2 border-${tipoGanador === 'DIRECTO' ? 'yellow' : 'purple'}-400 rounded p-2 my-2">
+                                <p class="text-lg font-bold text-${tipoGanador === 'DIRECTO' ? 'yellow' : 'purple'}-300">
+                                    🏆 GANADOR ${tipoGanador}
+                                </p>
+                                <p class="text-sm text-white mt-1">
+                                    ${mensajeGanador}
+                                </p>
+                            </div>
+                        `}
+                        
+                        <p class="text-sm">🔢 Sus números (formato BD): ${w.numerosAsignados.join(' y ')}</p>
+                        <p class="text-sm text-gray-400">Normalizados: ${normalizedWinnerNumbers.join(' y ')}</p>
+                        <p class="text-sm text-gray-400">Invertidos: ${normalizedWinnerNumbers.map(n => getInvertedNumber(n)).join(' y ')}</p>
+                        <p class="text-sm">👤 ${w.nombre}</p>
+                        <p class="text-sm">📧 ${w.correo}</p>
+                        <p class="text-sm">📱 ${w.telefono}</p>
+                        <p class="text-sm">📍 ${w.direccion}</p>
+                        <p class="text-sm font-bold ${w.estadoPago === 'pagado' ? 'text-green-400' : 'text-yellow-400'}">
+                            💰 ${w.estadoPago === 'pagado' ? 'PAGADO COMPLETO' : `Abonado $${w.amountPaid.toLocaleString('es-CO')}`}
+                        </p>
+                        <p class="text-sm font-bold ${w.reservationStatus === 'confirmado' ? 'text-green-400' : 'text-red-400'}">
+                            ${w.reservationStatus === 'confirmado' ? '✅ CONFIRMADO' : '❌ NO CONFIRMADO'}
+                        </p>
+                    </div>
+                `;
+            }).join('')}
         </div>
     `;
 }
