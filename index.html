@@ -186,20 +186,29 @@
                                 <p class="text-sm text-gray-300">Boletas vendidas</p>
                                 <p class="text-2xl font-bold"><span id="soldPercentage" class="text-green-400">0%</span></p>
                             </div>
+                            <div class="bg-white/10 rounded-lg p-4 flex-1">
+                                <p class="text-sm text-gray-300">Próximo sorteo</p>
+                                <p class="text-lg font-bold" id="nextDrawDate">-</p>
+                                <p class="text-xs text-gray-300">Sorteo Semanal</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="mt-6 max-w-4xl mx-auto">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        
+                        <!-- Countdown a la izquierda -->
+                        <div class="bg-red-600/20 border-2 border-red-400 rounded-lg p-4">
+                            <p class="text-sm font-semibold mb-2">Tiempo para la siguiente bendicion!</p>
+                            <p id="countdown" class="text-3xl font-mono font-bold">Calculando...</p>
+                        </div>
 
                         <!-- Información a la derecha -->
                         <div class="bg-blue-500/20 border border-blue-400 rounded-lg p-6">
                             <p class="text-sm">
                                 
-                                Para participar en el sorteo 1 y 2: paga mínimo el 50% (15.000).<br>
-                                Para participar en el sorteo 3 y 4: paga el valor total de (30.000).<br>
+                                Para participar en la BS 1 y 2: paga mínimo el 50% (15.000).<br>
+                                Para participar en la BS 3 y 4: paga el valor total de (30.000).<br>
                             </p>
                         </div>
                     </div>
